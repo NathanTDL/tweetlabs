@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Copy, Check, Zap, TrendingUp, Sparkles } from "lucide-react";
+import { Copy, Check, Zap, TrendingUp, Sparkles } from "lucide-react";
 import { TweetAnalysis } from "@/lib/types";
 import { useState } from "react";
 
@@ -39,19 +39,7 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Search */}
-            <div className="sticky top-0 z-10 bg-background pb-1 pt-1">
-                <label className="relative group block">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground group-focus-within:text-twitter-blue transition-colors">
-                        <Search size={16} strokeWidth={2.5} />
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className="w-full bg-secondary border border-transparent text-foreground placeholder:text-muted-foreground rounded-full py-2.5 pl-10 pr-4 focus:ring-1 focus:ring-twitter-blue focus:bg-background focus:border-twitter-blue transition-all text-[15px]"
-                    />
-                </label>
-            </div>
+
 
             {/* Loading State */}
             {isLoading && (
@@ -171,17 +159,7 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
                         </ul>
                     </div>
 
-                    <div className="p-4">
-                        <h2 className="font-bold text-[17px] mb-3">Refined Alternatives</h2>
-                        <div className="space-y-3">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="p-3 rounded-xl border border-border bg-background/50 opacity-40">
-                                    <div className="h-4 bg-border rounded w-full mb-2 animate-pulse" />
-                                    <div className="h-4 bg-border rounded w-2/3 animate-pulse" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+
                 </div>
             )}
         </div>

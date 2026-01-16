@@ -51,6 +51,7 @@ Guidelines:
 - Be constructive with criticism
 - Make alternative tweets genuinely better, not just different
 - Keep alternative tweets under 280 characters
+- Do not generate hashtags
 - Output ONLY valid JSON, no additional text or markdown
 
 Now simulate the following tweet:`;
