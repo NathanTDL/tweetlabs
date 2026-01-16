@@ -137,38 +137,6 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
                                 ))}
                             </ul>
                         </div>
-
-                        {/* Suggestions */}
-                        <div className="p-4">
-                            <h2 className="font-bold text-[15px] mb-3">Refined Alternatives</h2>
-                            <div className="space-y-3">
-                                {analysis.suggestions.map((suggestion, i) => (
-                                    <div
-                                        key={i}
-                                        className="p-3 rounded-xl border border-border bg-background group hover:border-twitter-blue/50 transition-colors"
-                                    >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-[12px] font-semibold text-twitter-blue">
-                                                {suggestion.version}
-                                            </span>
-                                            <button
-                                                onClick={() => handleCopy(suggestion.tweet, i)}
-                                                className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-                                                title="Copy to clipboard"
-                                            >
-                                                {copiedIndex === i ? (
-                                                    <Check size={14} className="text-green-500" />
-                                                ) : (
-                                                    <Copy size={14} className="text-muted-foreground" />
-                                                )}
-                                            </button>
-                                        </div>
-                                        <p className="text-[14px] mb-2 leading-relaxed">{suggestion.tweet}</p>
-                                        <p className="text-[12px] text-muted-foreground">{suggestion.reason}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
                     </div>
                 </>
             )}

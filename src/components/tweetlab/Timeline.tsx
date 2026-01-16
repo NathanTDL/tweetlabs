@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
-import { TweetAnalysis } from "@/lib/types";
+import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
+import { Copy, Check } from "lucide-react";
 
 interface Post {
     id: string;
@@ -16,6 +17,13 @@ interface Post {
         views: number;
     };
     isSimulated: boolean;
+    suggestions?: TweetSuggestion[];
+    baseStats?: {
+        views: number;
+        likes: number;
+        reposts: number;
+        comments: number;
+    };
 }
 
 interface TimelineProps {
@@ -28,6 +36,13 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
     const [posts, setPosts] = useState<Post[]>([]);
     const [isAnimating, setIsAnimating] = useState(false);
     const [currentPostId, setCurrentPostId] = useState<string | null>(null);
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+    };
 
     // Animate stats gradually after AI prediction comes in
     useEffect(() => {
@@ -36,7 +51,6 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
         const targetPost = posts.find(p => p.id === currentPostId);
         if (!targetPost) return;
 
-        // Get target stats from storage
         const targetStats = (window as any).__tweetlab_target_stats;
         if (!targetStats) return;
 
@@ -52,7 +66,6 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
                         comments: Math.min(post.stats.comments + Math.ceil(targetStats.comments * 0.12), targetStats.comments),
                     };
 
-                    // Check if we've reached target
                     if (
                         newStats.views >= targetStats.views &&
                         newStats.likes >= targetStats.likes &&
@@ -101,31 +114,54 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
 
             const analysis = data as TweetAnalysis;
 
-            // Store target stats for animation
-            (window as any).__tweetlab_target_stats = {
+            const baseStats = {
                 views: analysis.predicted_views,
                 likes: analysis.predicted_likes,
                 reposts: analysis.predicted_retweets,
                 comments: analysis.predicted_replies,
             };
 
+            (window as any).__tweetlab_target_stats = baseStats;
+
+            setPosts((prev) =>
+                prev.map((p) =>
+                    p.id === postId ? { ...p, suggestions: analysis.suggestions, baseStats } : p
+                )
+            );
+
             setCurrentPostId(postId);
             setIsAnimating(true);
             onAnalysisUpdate(analysis);
         } catch (error) {
             console.error("Simulation error:", error);
-            // Fallback to random simulation
-            (window as any).__tweetlab_target_stats = {
+            const fallbackStats = {
                 views: Math.floor(Math.random() * 5000) + 100,
                 likes: Math.floor(Math.random() * 200) + 10,
                 reposts: Math.floor(Math.random() * 50) + 2,
                 comments: Math.floor(Math.random() * 30) + 1,
             };
+            (window as any).__tweetlab_target_stats = fallbackStats;
             setCurrentPostId(postId);
             setIsAnimating(true);
         } finally {
             onLoadingChange(false);
         }
+    };
+
+    // Generate improved stats for suggestions
+    const getImprovedStats = (baseStats: Post["baseStats"], index: number) => {
+        if (!baseStats) return { views: 0, likes: 0, reposts: 0, comments: 0 };
+
+        // Each suggestion gets progressively better stats
+        const multipliers = [1.3, 1.6, 2.0];
+        const multiplier = multipliers[index] || 1.5;
+
+        return {
+            views: Math.floor(baseStats.views * multiplier),
+            likes: Math.floor(baseStats.likes * multiplier),
+            reposts: Math.floor(baseStats.reposts * multiplier),
+            comments: Math.floor(baseStats.comments * multiplier),
+        };
     };
 
     return (
@@ -139,19 +175,72 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
 
             <div className="divide-y divide-border">
                 {posts.map((post) => (
-                    <TweetCard
-                        key={post.id}
-                        name="You"
-                        handle="you"
-                        avatar="https://github.com/shadcn.png"
-                        time={post.time}
-                        content={post.content}
-                        comments={post.stats.comments}
-                        reposts={post.stats.reposts}
-                        likes={post.stats.likes}
-                        views={post.stats.views}
-                        isSimulated={post.isSimulated}
-                    />
+                    <div key={post.id}>
+                        <TweetCard
+                            name="You"
+                            handle="you"
+                            avatar="https://github.com/shadcn.png"
+                            time={post.time}
+                            content={post.content}
+                            comments={post.stats.comments}
+                            reposts={post.stats.reposts}
+                            likes={post.stats.likes}
+                            views={post.stats.views}
+                            isSimulated={post.isSimulated}
+                        />
+
+                        {/* Improved Versions Section */}
+                        {post.suggestions && post.suggestions.length > 0 && (
+                            <div className="border-t border-border">
+                                {/* Clean Header */}
+                                <div className="px-4 py-3 border-b border-border bg-secondary/20">
+                                    <h3 className="text-[15px] font-semibold">Improved Versions</h3>
+                                    <p className="text-[13px] text-muted-foreground mt-0.5">Higher predicted engagement</p>
+                                </div>
+
+                                {/* Suggestion Tweet Cards */}
+                                {post.suggestions.map((suggestion, idx) => {
+                                    const improvedStats = getImprovedStats(post.baseStats, idx);
+
+                                    return (
+                                        <div key={idx} className="relative group border-b border-border last:border-b-0">
+                                            {/* Copy Button */}
+                                            <button
+                                                onClick={() => handleCopy(suggestion.tweet, `${post.id}-${idx}`)}
+                                                className="absolute top-3 right-3 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-twitter-blue/10 hover:border-twitter-blue/30 transition-all opacity-0 group-hover:opacity-100"
+                                                title="Copy tweet"
+                                            >
+                                                {copiedId === `${post.id}-${idx}` ? (
+                                                    <Check size={15} className="text-green-500" />
+                                                ) : (
+                                                    <Copy size={15} className="text-muted-foreground" />
+                                                )}
+                                            </button>
+
+                                            {/* Tweet Card */}
+                                            <TweetCard
+                                                name="You"
+                                                handle="you"
+                                                avatar="https://github.com/shadcn.png"
+                                                time="optimized"
+                                                content={suggestion.tweet}
+                                                comments={improvedStats.comments}
+                                                reposts={improvedStats.reposts}
+                                                likes={improvedStats.likes}
+                                                views={improvedStats.views}
+                                                isSimulated={false}
+                                            />
+
+                                            {/* Why it's better */}
+                                            <div className="px-4 pb-3 -mt-1 text-[13px] text-muted-foreground ml-[52px]">
+                                                {suggestion.reason}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                 ))}
                 {posts.length === 0 && (
                     <div className="p-8 py-20 text-center">

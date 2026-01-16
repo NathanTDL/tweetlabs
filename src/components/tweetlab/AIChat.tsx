@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, X, Sparkles } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatMessage } from "@/lib/types";
+import ReactMarkdown from "react-markdown";
 
 interface AIChatProps {
     isOpen: boolean;
-    onClose: () => void;
     currentTweet?: string;
 }
 
-export function AIChat({ isOpen, onClose, currentTweet }: AIChatProps) {
+export function AIChat({ isOpen, currentTweet }: AIChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -93,127 +93,114 @@ export function AIChat({ isOpen, onClose, currentTweet }: AIChatProps) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
-            />
+        <div className="flex flex-col h-full overflow-hidden animate-in fade-in duration-300">
+            {/* Header */}
+            <div className="flex items-center gap-2 p-3 border-b border-border bg-secondary/30 shrink-0">
+                <div className="p-1 min-w-[24px] bg-twitter-blue/10 rounded-lg">
+                    <Sparkles className="h-4 w-4 text-twitter-blue" />
+                </div>
+                <div>
+                    <h2 className="font-bold text-[14px] leading-tight">AI Assistant</h2>
+                    <p className="text-[11px] text-muted-foreground leading-tight">
+                        Refine your tweets
+                    </p>
+                </div>
+            </div>
 
-            {/* Chat Panel */}
-            <div className="relative w-full max-w-lg h-[600px] max-h-[85vh] bg-background border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/30">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-twitter-blue/10 rounded-lg">
+            {/* Current Tweet Context */}
+            {currentTweet && (
+                <div className="px-3 py-2 bg-secondary/20 border-b border-border shrink-0">
+                    <p className="text-[11px] text-muted-foreground mb-0.5">Current tweet:</p>
+                    <p className="text-[12px] line-clamp-2 leading-tight opacity-80">{currentTweet}</p>
+                </div>
+            )}
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
+                {messages.length === 0 && (
+                    <div className="h-full flex flex-col items-center justify-center text-center px-2">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-twitter-blue/20 to-purple-500/20 flex items-center justify-center mb-3">
                             <Sparkles className="h-5 w-5 text-twitter-blue" />
                         </div>
-                        <div>
-                            <h2 className="font-bold text-[15px]">AI Assistant</h2>
-                            <p className="text-[12px] text-muted-foreground">
-                                Refine your tweets
-                            </p>
+                        <h3 className="font-semibold text-[14px] mb-1">How can I help?</h3>
+                        <div className="flex flex-col gap-1.5 w-full">
+                            {["Make it shorter", "Add more hook", "Make it bolder"].map(
+                                (suggestion) => (
+                                    <button
+                                        key={suggestion}
+                                        onClick={() => setInput(suggestion)}
+                                        className="text-[12px] px-3 py-2 bg-secondary hover:bg-secondary/80 rounded-xl border border-border transition-colors text-left"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                )
+                            )}
                         </div>
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={onClose}
-                        className="rounded-full h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                    >
-                        <X size={18} />
-                    </Button>
-                </div>
-
-                {/* Current Tweet Context */}
-                {currentTweet && (
-                    <div className="px-4 py-3 bg-secondary/20 border-b border-border">
-                        <p className="text-[12px] text-muted-foreground mb-1">Current tweet:</p>
-                        <p className="text-[13px] line-clamp-2">{currentTweet}</p>
                     </div>
                 )}
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.length === 0 && (
-                        <div className="h-full flex flex-col items-center justify-center text-center px-6">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-twitter-blue/20 to-purple-500/20 flex items-center justify-center mb-4">
-                                <Sparkles className="h-6 w-6 text-twitter-blue" />
-                            </div>
-                            <h3 className="font-semibold mb-2">How can I help?</h3>
-                            <p className="text-[13px] text-muted-foreground mb-4">
-                                Ask me to refine your tweet, make it shorter, more
-                                controversial, or anything else!
-                            </p>
-                            <div className="flex flex-wrap gap-2 justify-center">
-                                {["Make it shorter", "Add more hook", "Make it bolder"].map(
-                                    (suggestion) => (
-                                        <button
-                                            key={suggestion}
-                                            onClick={() => setInput(suggestion)}
-                                            className="text-[12px] px-3 py-1.5 bg-secondary hover:bg-secondary/80 rounded-full border border-border transition-colors"
-                                        >
-                                            {suggestion}
-                                        </button>
-                                    )
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {messages.map((message) => (
+                {messages.map((message) => (
+                    <div
+                        key={message.id}
+                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"
+                            }`}
+                    >
                         <div
-                            key={message.id}
-                            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"
+                            className={`max-w-[90%] px-3 py-2 rounded-2xl text-[13px] leading-snug ${message.role === "user"
+                                ? "bg-twitter-blue text-white rounded-br-sm"
+                                : "bg-secondary rounded-bl-sm"
                                 }`}
                         >
-                            <div
-                                className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed ${message.role === "user"
-                                        ? "bg-twitter-blue text-white rounded-br-md"
-                                        : "bg-secondary rounded-bl-md"
-                                    }`}
+                            <ReactMarkdown
+                                components={{
+                                    p: ({ node, ...props }) => <p {...props} className="mb-1 last:mb-0 leading-relaxed" />,
+                                    ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-4 mb-2 last:mb-0 space-y-0.5" />,
+                                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-4 mb-2 last:mb-0 space-y-0.5" />,
+                                    li: ({ node, ...props }) => <li {...props} className="pl-0.5" />,
+                                    strong: ({ node, ...props }) => <span {...props} className="font-bold" />,
+                                }}
                             >
                                 {message.content}
-                            </div>
+                            </ReactMarkdown>
                         </div>
-                    ))}
-
-                    {isLoading && (
-                        <div className="flex justify-start">
-                            <div className="bg-secondary px-4 py-3 rounded-2xl rounded-bl-md">
-                                <div className="flex gap-1">
-                                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input */}
-                <div className="p-4 border-t border-border bg-background">
-                    <div className="flex gap-2">
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder="Ask anything..."
-                            className="flex-1 bg-secondary border border-border rounded-full px-4 py-2.5 text-[14px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-twitter-blue focus:border-transparent transition-all"
-                            disabled={isLoading}
-                        />
-                        <Button
-                            onClick={handleSend}
-                            disabled={!input.trim() || isLoading}
-                            className="bg-twitter-blue hover:bg-twitter-blue/90 text-white rounded-full h-10 w-10 p-0 disabled:opacity-50"
-                        >
-                            <Send size={18} />
-                        </Button>
                     </div>
+                ))}
+
+                {isLoading && (
+                    <div className="flex justify-start">
+                        <div className="bg-secondary px-3 py-2 rounded-2xl rounded-bl-sm">
+                            <div className="flex gap-1">
+                                <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                                <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                                <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="p-3 border-t border-border bg-background shrink-0">
+                <div className="flex gap-2">
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type..."
+                        className="flex-1 bg-secondary border border-border rounded-full px-3 py-2 text-[13px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-twitter-blue focus:border-transparent transition-all min-w-0"
+                        disabled={isLoading}
+                    />
+                    <Button
+                        onClick={handleSend}
+                        disabled={!input.trim() || isLoading}
+                        className="bg-twitter-blue hover:bg-twitter-blue/90 text-white rounded-full h-[34px] w-[34px] p-0 disabled:opacity-50 shrink-0"
+                    >
+                        <Send size={14} />
+                    </Button>
                 </div>
             </div>
         </div>
