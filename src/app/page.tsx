@@ -9,7 +9,6 @@ import { Home, MessageSquare, Feather, Sparkles } from "lucide-react";
 import { ThemeToggle } from "@/components/tweetlab/ThemeToggle";
 import { TweetAnalysis } from "@/lib/types";
 import Image from "next/image";
-import { BottomNav } from "@/components/tweetlab/BottomNav";
 
 export default function Page() {
   const [analysis, setAnalysis] = useState<TweetAnalysis | null>(null);
@@ -93,11 +92,14 @@ export default function Page() {
         </header>
 
         {/* Center Timeline */}
-        <main className="flex w-full max-w-[600px] flex-col border-x border-border min-h-screen pb-[90px] sm:pb-0">
+        <main className="flex w-full max-w-[600px] flex-col border-x border-border min-h-screen sm:pb-0">
           <Timeline
             onAnalysisUpdate={setAnalysis}
             onLoadingChange={setIsLoading}
             onTweetChange={setCurrentTweet}
+            onToggleChat={() => setIsChatOpen(!isChatOpen)}
+            isChatOpen={isChatOpen}
+            onScrollToTop={scrollToTop}
           />
         </main>
 
@@ -106,13 +108,6 @@ export default function Page() {
           <AnalysisPanel analysis={analysis} isLoading={isLoading} />
         </aside>
       </div>
-
-      {/* Mobile Bottom Nav */}
-      <BottomNav
-        isChatOpen={isChatOpen}
-        onToggleChat={() => setIsChatOpen(!isChatOpen)}
-        onScrollToTop={scrollToTop}
-      />
 
       {/* Mobile/Tablet AI Chat Overlay */}
       {isChatOpen && (

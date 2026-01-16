@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
 import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Home, MessageSquare, Sparkles } from "lucide-react";
 
 interface Post {
     id: string;
@@ -30,9 +30,19 @@ interface TimelineProps {
     onAnalysisUpdate: (analysis: TweetAnalysis | null) => void;
     onLoadingChange: (loading: boolean) => void;
     onTweetChange: (tweet: string) => void;
+    onToggleChat?: () => void;
+    isChatOpen?: boolean;
+    onScrollToTop?: () => void;
 }
 
-export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: TimelineProps) {
+export function Timeline({
+    onAnalysisUpdate,
+    onLoadingChange,
+    onTweetChange,
+    onToggleChat,
+    isChatOpen,
+    onScrollToTop
+}: TimelineProps) {
     const [posts, setPosts] = useState<Post[]>([]);
     const [isAnimating, setIsAnimating] = useState(false);
     const [currentPostId, setCurrentPostId] = useState<string | null>(null);
@@ -179,8 +189,31 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
     return (
         <div className="flex flex-col min-h-screen">
             {/* Sticky Header */}
-            <div className="sticky top-0 z-10 flex h-[53px] items-center bg-twitter-header-bg backdrop-blur-md px-4 border-b border-border">
-                <h1 className="text-xl font-bold">Home</h1>
+            <div className="sticky top-0 z-10 flex h-[53px] items-center justify-between bg-twitter-header-bg backdrop-blur-md px-4 border-b border-border">
+                {/* Desktop/Tablet Title */}
+                <h1 className="hidden sm:block text-xl font-bold">Home</h1>
+
+                {/* Mobile Top Nav Icons */}
+                <div className="flex sm:hidden items-center justify-between w-full">
+                    <button
+                        onClick={onScrollToTop}
+                        className="p-2 -ml-2 rounded-full hover:bg-twitter-hover transition-colors"
+                    >
+                        <Home className="h-[22px] w-[22px]" strokeWidth={2.5} />
+                    </button>
+
+                    <span className="text-lg font-bold">TweetLab</span>
+
+                    <button
+                        onClick={onToggleChat}
+                        className={`p-2 -mr-2 rounded-full hover:bg-twitter-hover transition-colors ${isChatOpen ? "text-twitter-blue" : ""
+                            }`}
+                    >
+                        <MessageSquare className="h-[22px] w-[22px]" strokeWidth={isChatOpen ? 2.5 : 2} />
+                    </button>
+                </div>
+
+                {/* Mobile Spacer to balance if needed, or just center the icons above */}
             </div>
 
             <TweetComposer onPost={handlePost} />
