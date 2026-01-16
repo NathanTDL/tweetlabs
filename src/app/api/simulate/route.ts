@@ -22,6 +22,14 @@ export async function POST(request: NextRequest) {
 
         const analysis = await simulateTweet(tweet);
 
+        // Fire and forget stats increment
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            await supabase.rpc('increment_stat', { stat_key: 'total_simulations' });
+        } catch (err) {
+            console.error("Failed to increment stats:", err);
+        }
+
         return NextResponse.json(analysis);
     } catch (error) {
         console.error("Simulation error:", error);

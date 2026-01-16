@@ -37,6 +37,18 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
     const [isAnimating, setIsAnimating] = useState(false);
     const [currentPostId, setCurrentPostId] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [globalStats, setGlobalStats] = useState<number>(0);
+
+    useEffect(() => {
+        fetch("/api/stats")
+            .then(res => res.json())
+            .then(data => {
+                if (data.total_simulations) {
+                    setGlobalStats(data.total_simulations);
+                }
+            })
+            .catch(err => console.error("Failed to fetch stats:", err));
+    }, []);
 
     const handleCopy = (text: string, id: string) => {
         navigator.clipboard.writeText(text);
@@ -257,6 +269,14 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
                             <p className="text-muted-foreground text-[15px] leading-relaxed">
                                 TweetLab simulates how X will react to your tweet likes, replies, reposts, and engagement so you can improve it before it goes live.
                             </p>
+
+                            {/* Global Stats */}
+                            <div className="pt-2 pb-2">
+                                <p className="text-sm font-medium text-muted-foreground/80">
+                                    <span className="text-foreground font-bold">{globalStats.toLocaleString()}</span> tweets have been stress-tested
+                                </p>
+                            </div>
+
                             <div className="pt-2 flex flex-wrap justify-center gap-2 text-[13px] font-medium text-muted-foreground">
                                 <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Engagement Prediction</div>
                                 <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Smart Refinements</div>
