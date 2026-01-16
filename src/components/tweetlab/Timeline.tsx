@@ -252,15 +252,15 @@ export function Timeline({ onAnalysisUpdate, onLoadingChange, onTweetChange }: T
                                 </div>
                             </div>
                             <h2 className="text-2xl font-bold tracking-tight">
-                                Test your tweet before the internet does.
+                                Test your tweet before you post it.
                             </h2>
                             <p className="text-muted-foreground text-[15px] leading-relaxed">
-                                TweetLab is a flight simulator for attention. See how X will react—visually, emotionally, and structurally—before you risk your account.
+                                TweetLab simulates how X will react to your tweet likes, replies, reposts, and engagement so you can improve it before it goes live.
                             </p>
                             <div className="pt-2 flex flex-wrap justify-center gap-2 text-[13px] font-medium text-muted-foreground">
-                                <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Visual Simulator</div>
-                                <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">AI Analysis</div>
-                                <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Virality Check</div>
+                                <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Engagement Prediction</div>
+                                <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Smart Refinements</div>
+                                <div className="px-3 py-1.5 bg-secondary rounded-full border border-border">Visual Preview</div>
                             </div>
                         </div>
                     </div>

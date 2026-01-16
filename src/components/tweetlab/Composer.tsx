@@ -1,4 +1,3 @@
-import { Image, Calendar, MapPin, Smile, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
@@ -33,36 +32,14 @@ export function TweetComposer({ onPost }: TweetComposerProps) {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                 />
-                <div className="flex items-center justify-between border-t border-border pt-3 mt-2">
-                    <div className="flex gap-0.5 text-twitter-blue">
-                        <Button variant="ghost" size="icon" className="text-twitter-blue hover:bg-twitter-blue/10 rounded-full h-9 w-9">
-                            <Image size={18} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-twitter-blue hover:bg-twitter-blue/10 rounded-full h-9 w-9">
-                            <div className="border border-current rounded px-1 text-[10px] font-bold">GIF</div>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-twitter-blue hover:bg-twitter-blue/10 rounded-full h-9 w-9">
-                            <List size={18} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-twitter-blue hover:bg-twitter-blue/10 rounded-full h-9 w-9">
-                            <Smile size={18} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-twitter-blue hover:bg-twitter-blue/10 rounded-full h-9 w-9">
-                            <Calendar size={18} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-twitter-blue hover:bg-twitter-blue/10 rounded-full h-9 w-9">
-                            <MapPin size={18} />
-                        </Button>
-                    </div>
-                    <div>
-                        <Button
-                            className="bg-twitter-blue hover:bg-twitter-blue/90 text-white font-bold rounded-full px-4 h-9 disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
-                            onClick={handlePostClick}
-                            disabled={!content.trim()}
-                        >
-                            Post
-                        </Button>
-                    </div>
+                <div className="flex items-center justify-end pt-2 mt-2">
+                    <Button
+                        className="bg-twitter-blue hover:bg-twitter-blue/90 text-white font-bold rounded-full px-4 h-9 disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                        onClick={handlePostClick}
+                        disabled={!content.trim()}
+                    >
+                        Post
+                    </Button>
                 </div>
             </div>
         </div>
