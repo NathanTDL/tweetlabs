@@ -82,7 +82,7 @@ export async function simulateTweet(tweetContent: string) {
             throw new Error("No response from AI");
         }
 
-        // Parse the JSON response
+        //Parse the JSON response
         const analysis = JSON.parse(text);
         return analysis;
     } catch (error) {
