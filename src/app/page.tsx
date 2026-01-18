@@ -61,7 +61,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-background text-foreground selection:bg-twitter-blue/30 transition-colors duration-300">
+    <div className="flex min-h-screen justify-center bg-background text-foreground selection:bg-twitter-blue/30 transition-colors duration-300 overflow-x-hidden">
       <div className="flex w-full max-w-[1265px] xl:w-full">
         {/* Left Sidebar (Nav + AI Chat) */}
         <header ref={sidebarRef} className="hidden sm:flex w-[68px] xl:w-[275px] shrink-0 flex-col p-2 h-screen sticky top-0 overflow-hidden border-r border-border">
@@ -165,7 +165,7 @@ export default function Page() {
         </header>
 
         {/* Center Timeline */}
-        <main className="flex w-full xl:max-w-[600px] lg:max-w-[600px] md:max-w-full max-w-[600px] flex-col border-x border-border min-h-screen sm:pb-0">
+        <main className="flex w-full xl:max-w-[600px] lg:max-w-[600px] md:max-w-[600px] max-w-full flex-col border-x border-border min-h-screen sm:pb-0 pb-[60px]">
           <Timeline
             onAnalysisUpdate={setAnalysis}
             onLoadingChange={setIsLoading}
@@ -186,7 +186,7 @@ export default function Page() {
 
       {/* Mobile/Tablet AI Chat Overlay */}
       {isChatOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden flex items-start sm:items-center justify-center pt-[53px] pb-[60px] sm:p-4">
+        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden flex items-start sm:items-center justify-center pt-0 pb-[60px] sm:p-4">
           <div className="absolute inset-0" onClick={() => setIsChatOpen(false)} />
           <div className="relative w-full h-full sm:h-[600px] sm:max-w-[400px] bg-background sm:border sm:border-border sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur z-10 shrink-0">
@@ -203,6 +203,7 @@ export default function Page() {
                 isOpen={true}
                 currentTweet={currentTweet}
                 hideHeader={true}
+                autoFocus={false}
               />
             </div>
           </div>
@@ -211,7 +212,7 @@ export default function Page() {
 
       {/* Mobile/Tablet History Overlay */}
       {isHistoryOpen && session?.user && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden flex items-start sm:items-center justify-center pt-[53px] pb-[60px] sm:p-4">
+        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden flex items-start sm:items-center justify-center pt-0 pb-[60px] sm:p-4">
           {/* Backdrop click to close */}
           <div className="absolute inset-0" onClick={() => setIsHistoryOpen(false)} />
 
@@ -226,7 +227,7 @@ export default function Page() {
               </button>
             </div>
             <div className="flex-1 overflow-hidden p-0 relative">
-              <History onSelectHistory={handleHistorySelect} />
+              <History onSelectHistory={handleHistorySelect} hideHeader={true} />
             </div>
           </div>
         </div>

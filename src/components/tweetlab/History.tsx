@@ -12,9 +12,10 @@ interface HistoryItem {
 
 interface HistoryProps {
     onSelectHistory?: (item: HistoryItem) => void;
+    hideHeader?: boolean;
 }
 
-export function History({ onSelectHistory }: HistoryProps) {
+export function History({ onSelectHistory, hideHeader }: HistoryProps) {
     const { data: session } = useSession();
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -87,10 +88,12 @@ export function History({ onSelectHistory }: HistoryProps) {
     return (
         <div className="flex flex-col h-full bg-background">
             {/* Header */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background sticky top-0 z-10 text-foreground">
-                <HistoryIcon className="h-5 w-5 text-twitter-blue" />
-                <h3 className="font-bold text-[15px]">Your History</h3>
-            </div>
+            {!hideHeader && (
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background sticky top-0 z-10 text-foreground">
+                    <HistoryIcon className="h-5 w-5 text-twitter-blue" />
+                    <h3 className="font-bold text-[15px]">Your History</h3>
+                </div>
+            )}
 
             {/* History List */}
             <div className="flex-1 overflow-y-auto">

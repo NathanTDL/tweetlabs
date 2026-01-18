@@ -1,7 +1,8 @@
 "use client";
 
 import { useSession } from "@/lib/auth-client";
-import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, MoreHorizontal, Sparkles, Database, Users, Fingerprint } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, MoreHorizontal, Sparkles, Database, Users, Fingerprint, LogOut } from "lucide-react";
+import { ThemeToggle } from "@/components/tweetlab/ThemeToggle";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -139,10 +140,22 @@ export default function ProfilePage() {
                         )}
 
                         {/* Meta Row */}
-                        <div className="mt-3 flex items-center gap-4 text-[14px] text-muted-foreground">
+                        <div className="mt-3 flex flex-wrap items-center gap-4 text-[14px] text-muted-foreground">
                             <div className="flex items-center gap-1.5 bg-secondary/30 px-2 py-0.5 rounded-md">
                                 <Calendar className="h-3.5 w-3.5" />
                                 <span>Joined {joinDate}</span>
+                            </div>
+
+                            {/* Theme and Logout for Mobile ease */}
+                            <div className="flex items-center gap-2">
+                                <ThemeToggle />
+                                <button
+                                    onClick={() => signOut()}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-border hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                                >
+                                    <LogOut className="h-3.5 w-3.5" />
+                                    Logout
+                                </button>
                             </div>
                         </div>
 

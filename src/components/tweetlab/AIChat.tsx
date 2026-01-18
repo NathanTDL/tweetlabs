@@ -10,9 +10,10 @@ interface AIChatProps {
     isOpen: boolean;
     currentTweet?: string;
     hideHeader?: boolean;
+    autoFocus?: boolean;
 }
 
-export function AIChat({ isOpen, currentTweet, hideHeader }: AIChatProps) {
+export function AIChat({ isOpen, currentTweet, hideHeader, autoFocus = true }: AIChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -28,10 +29,10 @@ export function AIChat({ isOpen, currentTweet, hideHeader }: AIChatProps) {
     }, [messages]);
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && autoFocus) {
             inputRef.current?.focus();
         }
-    }, [isOpen]);
+    }, [isOpen, autoFocus]);
 
     const handleSend = async (directMessage?: string) => {
         const messageToSend = directMessage || input.trim();

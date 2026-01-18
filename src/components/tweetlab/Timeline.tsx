@@ -226,17 +226,9 @@ export function Timeline({
     return (
         <div className="flex flex-col min-h-screen">
             {/* Sticky Header */}
-            <div className="sticky top-0 z-10 flex h-[53px] items-center justify-between bg-twitter-header-bg backdrop-blur-md px-4 border-b border-border">
+            <div className="hidden sm:flex sticky top-0 z-10 h-[53px] items-center justify-between bg-twitter-header-bg backdrop-blur-md px-4 border-b border-border">
                 {/* Desktop/Tablet Title */}
-                <h1 className="hidden sm:block text-xl font-bold">Home</h1>
-
-                {/* Mobile Top Nav Icons */}
-                <div className="flex sm:hidden items-center justify-start gap-2 w-full">
-                    <FlaskConical className="h-6 w-6 text-twitter-blue" strokeWidth={2.5} />
-                    <span className="text-lg font-bold">TweetLab</span>
-                </div>
-
-                {/* Mobile Spacer to balance if needed, or just center the icons above */}
+                <h1 className="text-xl font-bold">Home</h1>
             </div>
 
             <TweetComposer onPost={handlePost} />
