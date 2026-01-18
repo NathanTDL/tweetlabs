@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
 import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
-import { Copy, Check, Home, MessageSquare, Sparkles } from "lucide-react";
+import { Copy, Check, Home, MessageSquare, Sparkles, FlaskConical } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
 interface Post {
@@ -231,23 +231,9 @@ export function Timeline({
                 <h1 className="hidden sm:block text-xl font-bold">Home</h1>
 
                 {/* Mobile Top Nav Icons */}
-                <div className="flex sm:hidden items-center justify-between w-full">
-                    <button
-                        onClick={onScrollToTop}
-                        className="p-2 -ml-2 rounded-full hover:bg-twitter-hover transition-colors"
-                    >
-                        <Home className="h-[22px] w-[22px]" strokeWidth={2.5} />
-                    </button>
-
+                <div className="flex sm:hidden items-center justify-start gap-2 w-full">
+                    <FlaskConical className="h-6 w-6 text-twitter-blue" strokeWidth={2.5} />
                     <span className="text-lg font-bold">TweetLab</span>
-
-                    <button
-                        onClick={onToggleChat}
-                        className={`p-2 -mr-2 rounded-full hover:bg-twitter-hover transition-colors ${isChatOpen ? "text-twitter-blue" : ""
-                            }`}
-                    >
-                        <MessageSquare className="h-[22px] w-[22px]" strokeWidth={isChatOpen ? 2.5 : 2} />
-                    </button>
                 </div>
 
                 {/* Mobile Spacer to balance if needed, or just center the icons above */}

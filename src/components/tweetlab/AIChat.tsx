@@ -9,9 +9,10 @@ import ReactMarkdown from "react-markdown";
 interface AIChatProps {
     isOpen: boolean;
     currentTweet?: string;
+    hideHeader?: boolean;
 }
 
-export function AIChat({ isOpen, currentTweet }: AIChatProps) {
+export function AIChat({ isOpen, currentTweet, hideHeader }: AIChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -95,18 +96,20 @@ export function AIChat({ isOpen, currentTweet }: AIChatProps) {
 
     return (
         <div className="flex flex-col h-full overflow-hidden animate-in fade-in duration-300">
-            {/* Header */}
-            <div className="flex items-center gap-2 p-3 border-b border-border bg-secondary/30 shrink-0">
-                <div className="p-1 min-w-[24px] bg-twitter-blue/10 rounded-lg">
-                    <Sparkles className="h-4 w-4 text-twitter-blue" />
+            {/* Header - Only show if not hidden */}
+            {!hideHeader && (
+                <div className="flex items-center gap-2 p-3 border-b border-border bg-secondary/30 shrink-0">
+                    <div className="p-1 min-w-[24px] bg-twitter-blue/10 rounded-lg">
+                        <Sparkles className="h-4 w-4 text-twitter-blue" />
+                    </div>
+                    <div>
+                        <h2 className="font-bold text-[14px] leading-tight">AI Assistant</h2>
+                        <p className="text-[11px] text-muted-foreground leading-tight">
+                            Refine your tweets
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h2 className="font-bold text-[14px] leading-tight">AI Assistant</h2>
-                    <p className="text-[11px] text-muted-foreground leading-tight">
-                        Refine your tweets
-                    </p>
-                </div>
-            </div>
+            )}
 
             {/* Current Tweet Context */}
             {currentTweet && (

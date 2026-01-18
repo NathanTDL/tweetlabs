@@ -44,7 +44,7 @@ export function UserProfile({ onLoginClick }: UserProfileProps) {
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-                <button className="group relative flex w-full items-center gap-3 p-3 rounded-full hover:bg-twitter-hover transition-colors outline-none cursor-pointer">
+                <button className="group relative flex w-full xl:w-full items-center justify-center xl:justify-start gap-3 p-3 rounded-full hover:bg-twitter-hover transition-colors outline-none cursor-pointer">
                     {/* Avatar */}
                     {/* Avatar */}
                     <div className="relative shrink-0">

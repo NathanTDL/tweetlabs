@@ -39,6 +39,11 @@ export default function Page() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      // Disable click-outside logic on mobile (<1280px) where sidebar is hidden/different behavior
+      // or specifically when bottom nav is active. The Sidebar is hidden on < sm (640px) actually in the logic above.
+      // But let's say if window width is small, we rely on the overlay close button or bottom nav.
+      if (window.innerWidth < 1280) return;
+
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
         if (isChatOpen) setIsChatOpen(false);
         if (isHistoryOpen) setIsHistoryOpen(false);
@@ -76,10 +81,10 @@ export default function Page() {
               </Link>
 
               {/* Nav Items */}
-              <nav className="flex flex-col gap-2 mt-1 w-full mb-4">
+              <nav className="flex flex-col gap-2 mt-1 w-full mb-4 items-center xl:items-start">
                 <button
                   onClick={() => setIsChatOpen(!isChatOpen)}
-                  className={`group flex items-center gap-4 p-3 rounded-full w-fit xl:w-auto transition-colors hover:bg-twitter-hover ${isChatOpen ? "font-bold text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`group flex items-center justify-center xl:justify-start gap-4 p-3 rounded-full w-fit xl:w-auto transition-colors hover:bg-twitter-hover ${isChatOpen ? "font-bold text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <MessageSquare className="h-[26px] w-[26px]" strokeWidth={isChatOpen ? 2.5 : 1.75} />
                   <span className="hidden xl:block text-xl">AI Chat</span>
@@ -90,7 +95,7 @@ export default function Page() {
                     {session?.user ? (
                       <Link
                         href="/profile"
-                        className="group flex items-center gap-4 p-3 rounded-full hover:bg-twitter-hover w-fit xl:w-auto transition-colors text-muted-foreground hover:text-foreground"
+                        className="group flex items-center justify-center xl:justify-start gap-4 p-3 rounded-full hover:bg-twitter-hover w-fit xl:w-auto transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <User className="h-[26px] w-[26px]" strokeWidth={1.75} />
                         <span className="hidden xl:block text-xl">Profile</span>
@@ -98,7 +103,7 @@ export default function Page() {
                     ) : (
                       <button
                         onClick={() => setIsLoginModalOpen(true)}
-                        className="group flex items-center gap-4 p-3 rounded-full hover:bg-twitter-hover w-fit xl:w-auto transition-colors text-muted-foreground hover:text-foreground"
+                        className="group flex items-center justify-center xl:justify-start gap-4 p-3 rounded-full hover:bg-twitter-hover w-fit xl:w-auto transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <User className="h-[26px] w-[26px]" strokeWidth={1.75} />
                         <span className="hidden xl:block text-xl">Profile</span>
@@ -109,7 +114,7 @@ export default function Page() {
                     {session?.user && (
                       <button
                         onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                        className={`group flex items-center gap-4 p-3 rounded-full w-fit xl:w-auto transition-colors hover:bg-twitter-hover ${isHistoryOpen ? "text-twitter-blue font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                        className={`group flex items-center justify-center xl:justify-start gap-4 p-3 rounded-full w-fit xl:w-auto transition-colors hover:bg-twitter-hover ${isHistoryOpen ? "text-twitter-blue font-bold" : "text-muted-foreground hover:text-foreground"}`}
                       >
                         <HistoryIcon className="h-[26px] w-[26px]" strokeWidth={isHistoryOpen ? 2.5 : 1.75} />
                         <span className="hidden xl:block text-xl">History</span>
@@ -160,7 +165,7 @@ export default function Page() {
         </header>
 
         {/* Center Timeline */}
-        <main className="flex w-full max-w-[600px] flex-col border-x border-border min-h-screen sm:pb-0">
+        <main className="flex w-full xl:max-w-[600px] lg:max-w-[600px] md:max-w-full max-w-[600px] flex-col border-x border-border min-h-screen sm:pb-0">
           <Timeline
             onAnalysisUpdate={setAnalysis}
             onLoadingChange={setIsLoading}
@@ -181,22 +186,23 @@ export default function Page() {
 
       {/* Mobile/Tablet AI Chat Overlay */}
       {isChatOpen && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm xl:hidden flex items-end sm:items-center justify-center sm:p-4">
+        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden flex items-start sm:items-center justify-center pt-[53px] pb-[60px] sm:p-4">
           <div className="absolute inset-0" onClick={() => setIsChatOpen(false)} />
-          <div className="relative w-full h-[80vh] sm:h-[600px] sm:max-w-[400px] bg-background border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="relative w-full h-full sm:h-[600px] sm:max-w-[400px] bg-background sm:border sm:border-border sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur z-10 shrink-0">
               <h3 className="font-bold text-lg flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-twitter-blue" />
                 AI Assistant
               </h3>
-              <button onClick={() => setIsChatOpen(false)} className="p-2 hover:bg-secondary rounded-full">
+              <button onClick={() => setIsChatOpen(false)} className="p-2 hover:bg-secondary rounded-full sm:block hidden">
                 <Feather className="h-5 w-5 rotate-45" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden relative">
               <AIChat
                 isOpen={true}
                 currentTweet={currentTweet}
+                hideHeader={true}
               />
             </div>
           </div>
@@ -205,21 +211,21 @@ export default function Page() {
 
       {/* Mobile/Tablet History Overlay */}
       {isHistoryOpen && session?.user && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm xl:hidden flex items-end sm:items-center justify-center sm:p-4">
+        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden flex items-start sm:items-center justify-center pt-[53px] pb-[60px] sm:p-4">
           {/* Backdrop click to close */}
           <div className="absolute inset-0" onClick={() => setIsHistoryOpen(false)} />
 
-          <div className="relative w-full h-[80vh] sm:h-[600px] sm:max-w-[400px] bg-background border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="relative w-full h-full sm:h-[600px] sm:max-w-[400px] bg-background sm:border sm:border-border sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur z-10 shrink-0">
               <h3 className="font-bold text-lg flex items-center gap-2">
                 <HistoryIcon className="h-5 w-5 text-twitter-blue" />
                 Your History
               </h3>
-              <button onClick={() => setIsHistoryOpen(false)} className="p-2 hover:bg-secondary rounded-full">
+              <button onClick={() => setIsHistoryOpen(false)} className="p-2 hover:bg-secondary rounded-full sm:block hidden">
                 <Feather className="h-5 w-5 rotate-45" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden p-0">
+            <div className="flex-1 overflow-hidden p-0 relative">
               <History onSelectHistory={handleHistorySelect} />
             </div>
           </div>
@@ -231,6 +237,58 @@ export default function Page() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
       />
+
+      {/* Mobile Bottom Navigation - Fixed at bottom */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 h-[60px] bg-background/80 backdrop-blur-md border-t border-border flex items-center justify-around z-50 pb-safe">
+        <button
+          onClick={() => {
+            setIsChatOpen(false);
+            setIsHistoryOpen(false);
+            scrollToTop();
+          }}
+          className={`flex flex-col items-center justify-center p-2 w-full h-full transition-colors ${!isChatOpen && !isHistoryOpen ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Home className="h-6 w-6" strokeWidth={!isChatOpen && !isHistoryOpen ? 2.5 : 2} />
+        </button>
+
+        <button
+          onClick={() => {
+            setIsChatOpen(true);
+            setIsHistoryOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center p-2 w-full h-full transition-colors ${isChatOpen ? "text-twitter-blue" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <MessageSquare className="h-6 w-6" strokeWidth={isChatOpen ? 2.5 : 2} />
+        </button>
+
+        {session?.user && (
+          <button
+            onClick={() => {
+              setIsHistoryOpen(true);
+              setIsChatOpen(false);
+            }}
+            className={`flex flex-col items-center justify-center p-2 w-full h-full transition-colors ${isHistoryOpen ? "text-twitter-blue" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <HistoryIcon className="h-6 w-6" strokeWidth={isHistoryOpen ? 2.5 : 2} />
+          </button>
+        )}
+
+        {session?.user ? (
+          <Link
+            href="/profile"
+            className="flex flex-col items-center justify-center p-2 w-full h-full text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <User className="h-6 w-6" strokeWidth={2} />
+          </Link>
+        ) : (
+          <button
+            onClick={() => setIsLoginModalOpen(true)}
+            className="flex flex-col items-center justify-center p-2 w-full h-full text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <User className="h-6 w-6" strokeWidth={2} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
