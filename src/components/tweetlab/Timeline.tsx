@@ -5,6 +5,7 @@ import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
 import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
 import { Copy, Check, Home, MessageSquare, Sparkles } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 
 interface Post {
     id: string;
@@ -33,6 +34,8 @@ interface TimelineProps {
     onToggleChat?: () => void;
     isChatOpen?: boolean;
     onScrollToTop?: () => void;
+    selectedHistoryItem?: any; // Using any to avoid circular import or duplication, but ideally should be HistoryItem
+    onLoginClick: () => void;
 }
 
 export function Timeline({
@@ -41,13 +44,16 @@ export function Timeline({
     onTweetChange,
     onToggleChat,
     isChatOpen,
-    onScrollToTop
+    onScrollToTop,
+    selectedHistoryItem,
+    onLoginClick
 }: TimelineProps) {
     const [posts, setPosts] = useState<Post[]>([]);
     const [isAnimating, setIsAnimating] = useState(false);
     const [currentPostId, setCurrentPostId] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [globalStats, setGlobalStats] = useState<number>(0);
+    const { data: session } = useSession();
 
     useEffect(() => {
         fetch("/api/stats")
@@ -59,6 +65,37 @@ export function Timeline({
             })
             .catch(err => console.error("Failed to fetch stats:", err));
     }, []);
+
+    // Load selected history item
+    useEffect(() => {
+        if (selectedHistoryItem && selectedHistoryItem.analysis) {
+            const analysis = selectedHistoryItem.analysis as TweetAnalysis;
+            const postId = selectedHistoryItem.id;
+
+            const baseStats = {
+                views: analysis.predicted_views,
+                likes: analysis.predicted_likes,
+                reposts: analysis.predicted_retweets,
+                comments: analysis.predicted_replies,
+            };
+
+            const historicalPost: Post = {
+                id: postId,
+                content: selectedHistoryItem.tweet_content,
+                time: "History", // Indicator that this is from history
+                stats: baseStats,
+                isSimulated: true,
+                suggestions: analysis.suggestions,
+                baseStats
+            };
+
+            setPosts([historicalPost]); // Replace current view with history item
+            // Also update the composer content
+            onTweetChange(selectedHistoryItem.tweet_content);
+            // Update analysis panel is handled by parent, but we can double check
+            onAnalysisUpdate(analysis);
+        }
+    }, [selectedHistoryItem, onTweetChange, onAnalysisUpdate]);
 
     const handleCopy = (text: string, id: string) => {
         navigator.clipboard.writeText(text);
@@ -222,9 +259,9 @@ export function Timeline({
                 {posts.map((post) => (
                     <div key={post.id}>
                         <TweetCard
-                            name="You"
+                            name={session?.user?.name || "You"}
                             handle="you"
-                            avatar="https://github.com/shadcn.png"
+                            avatar={session?.user?.image}
                             time={post.time}
                             content={post.content}
                             comments={post.stats.comments}
@@ -233,6 +270,39 @@ export function Timeline({
                             views={post.stats.views}
                             isSimulated={post.isSimulated}
                         />
+
+                        {/* Login Prompt for non-auth users */}
+                        {!session?.user && post.isSimulated && (
+                            <div className="bg-twitter-blue/5 border-y border-border p-4 flex flex-col items-center text-center space-y-3">
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    Create an account to save your posts and AI insights.
+                                </p>
+                                <button
+                                    onClick={onLoginClick}
+                                    className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-colors flex items-center gap-2 shadow-sm"
+                                >
+                                    <svg className="h-4 w-4" viewBox="0 0 24 24">
+                                        <path
+                                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                            fill="#4285F4"
+                                        />
+                                        <path
+                                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                            fill="#34A853"
+                                        />
+                                        <path
+                                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z"
+                                            fill="#FBBC05"
+                                        />
+                                        <path
+                                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                            fill="#EA4335"
+                                        />
+                                    </svg>
+                                    Continue with Google
+                                </button>
+                            </div>
+                        )}
 
                         {/* Improved Versions Section */}
                         {post.suggestions && post.suggestions.length > 0 && (
@@ -264,9 +334,9 @@ export function Timeline({
 
                                             {/* Tweet Card */}
                                             <TweetCard
-                                                name="You"
+                                                name={session?.user?.name || "You"}
                                                 handle="you"
-                                                avatar="https://github.com/shadcn.png"
+                                                avatar={session?.user?.image}
                                                 time="optimized"
                                                 content={suggestion.tweet}
                                                 comments={improvedStats.comments}
@@ -277,7 +347,7 @@ export function Timeline({
                                             />
 
                                             {/* Why it's better */}
-                                            <div className="px-4 pb-3 -mt-1 text-[13px] text-muted-foreground ml-[52px]">
+                                            <div className="px-4 pt-1 pb-4 text-[13px] leading-relaxed text-muted-foreground ml-[52px]">
                                                 {suggestion.reason}
                                             </div>
                                         </div>

@@ -1,11 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, Repeat, Heart, BarChart2, Share, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface TweetCardProps {
     name: string;
     handle: string;
-    avatar: string;
+    avatar?: string | null;
     time: string;
     content: string;
     comments: number;
@@ -21,12 +22,14 @@ export function TweetCard({ name, handle, avatar, time, content, comments, repos
             "flex gap-3 px-4 py-3 border-b border-border cursor-pointer hover:bg-twitter-hover transition-colors",
             isSimulated && "animate-in fade-in slide-in-from-top-4 duration-500"
         )}>
-            <div className="shrink-0">
-                <Avatar className="w-10 h-10">
-                    <AvatarImage src={avatar} alt={`@${handle}`} />
-                    <AvatarFallback>{name[0]}</AvatarFallback>
+            <Link href="/profile" className="shrink-0 cursor-pointer">
+                <Avatar className="w-10 h-10 border border-border/50">
+                    {avatar && <AvatarImage src={avatar} alt={`@${handle}`} />}
+                    <AvatarFallback className="bg-twitter-blue text-white font-bold">
+                        {name ? name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "U"}
+                    </AvatarFallback>
                 </Avatar>
-            </div>
+            </Link>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 overflow-hidden text-[15px]">

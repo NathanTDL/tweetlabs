@@ -32,13 +32,14 @@ export function AIChat({ isOpen, currentTweet }: AIChatProps) {
         }
     }, [isOpen]);
 
-    const handleSend = async () => {
-        if (!input.trim() || isLoading) return;
+    const handleSend = async (directMessage?: string) => {
+        const messageToSend = directMessage || input.trim();
+        if (!messageToSend || isLoading) return;
 
         const userMessage: ChatMessage = {
             id: Date.now().toString(),
             role: "user",
-            content: input.trim(),
+            content: messageToSend,
             timestamp: new Date(),
         };
 
@@ -51,7 +52,7 @@ export function AIChat({ isOpen, currentTweet }: AIChatProps) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    message: input.trim(),
+                    message: messageToSend,
                     tweetContext: currentTweet,
                 }),
             });
@@ -128,8 +129,9 @@ export function AIChat({ isOpen, currentTweet }: AIChatProps) {
                                 (suggestion) => (
                                     <button
                                         key={suggestion}
-                                        onClick={() => setInput(suggestion)}
-                                        className="text-[12px] px-3 py-2 bg-secondary hover:bg-secondary/80 rounded-xl border border-border transition-colors text-left"
+                                        onClick={() => handleSend(suggestion)}
+                                        disabled={isLoading}
+                                        className="text-[12px] px-3 py-2 bg-secondary hover:bg-secondary/80 rounded-xl border border-border transition-colors text-left disabled:opacity-50"
                                     >
                                         {suggestion}
                                     </button>
@@ -195,7 +197,7 @@ export function AIChat({ isOpen, currentTweet }: AIChatProps) {
                         disabled={isLoading}
                     />
                     <Button
-                        onClick={handleSend}
+                        onClick={() => handleSend()}
                         disabled={!input.trim() || isLoading}
                         className="bg-twitter-blue hover:bg-twitter-blue/90 text-white rounded-full h-[34px] w-[34px] p-0 disabled:opacity-50 shrink-0"
                     >

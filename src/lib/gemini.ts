@@ -67,11 +67,32 @@ If they ask general questions about Twitter/X strategy, be helpful but concise.
 
 Current tweet context (if any): `;
 
-export async function simulateTweet(tweetContent: string) {
+interface UserContext {
+    bio?: string;
+    targetAudience?: string;
+    aiContext?: string;
+}
+
+export async function simulateTweet(tweetContent: string, context?: UserContext) {
     try {
+        let promptWithContext = SIMULATION_PROMPT;
+
+        if (context) {
+            const contextString = `
+User Persona Context:
+${context.bio ? `- Bio: ${context.bio}` : ''}
+${context.targetAudience ? `- Target Audience: ${context.targetAudience}` : ''}
+${context.aiContext ? `- Additional Behaviors/Context: ${context.aiContext}` : ''}
+
+CRITICAL INSTRUCTION: Adjust your analysis ("likely", "tends to") and SUGGESTIONS based on this specific persona. 
+For example, if the audience is "Investors", prioritize authority and clarity. If "Gen Z", prioritize novelty and memes.
+`;
+            promptWithContext += contextString;
+        }
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: `${SIMULATION_PROMPT}\nTweet: "${tweetContent}"`,
+            contents: `${promptWithContext}\nTweet: "${tweetContent}"`,
             config: {
                 responseMimeType: "application/json",
             },

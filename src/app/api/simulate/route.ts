@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { simulateTweet } from "@/lib/gemini";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,14 +22,44 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const analysis = await simulateTweet(tweet);
+        // Fetch user context if authenticated
+        let userContext = undefined;
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
 
-        // Fire and forget stats increment
+        if (session?.user) {
+            const { data: user } = await (await import("@/lib/supabase")).supabase
+                .from("user")
+                .select("bio, target_audience, ai_context")
+                .eq("id", session.user.id)
+                .single();
+
+            if (user) {
+                userContext = {
+                    bio: user.bio,
+                    targetAudience: user.target_audience,
+                    aiContext: user.ai_context
+                };
+            }
+        }
+
+        const analysis = await simulateTweet(tweet, userContext);
+
+        // Fire and forget stats increment and history save
         try {
             const { supabase } = await import("@/lib/supabase");
             await supabase.rpc('increment_stat', { stat_key: 'total_simulations' });
+
+            if (session?.user) {
+                await supabase.from("post_history").insert({
+                    user_id: session.user.id,
+                    tweet_content: tweet,
+                    analysis: analysis,
+                });
+            }
         } catch (err) {
-            console.error("Failed to increment stats:", err);
+            console.error("Failed to increment stats or save history:", err);
         }
 
         return NextResponse.json(analysis);
