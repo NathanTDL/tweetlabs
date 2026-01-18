@@ -347,7 +347,7 @@ export function Timeline({
                             <h2 className="text-2xl font-bold tracking-tight">
                                 Test your tweet before you post it.
                             </h2>
-                            <p className="text-muted-foreground text-[15px] leading-relaxed">
+                            <p className="hidden sm:block text-muted-foreground text-[15px] leading-relaxed">
                                 TweetLab simulates how X will react to your tweet likes, replies, reposts, and engagement so you can improve it before it goes live.
                             </p>
 
