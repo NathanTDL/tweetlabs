@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
 import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
-import { Copy, Check, Home, MessageSquare, Sparkles, FlaskConical } from "lucide-react";
+import { Copy, Check, Home, MessageSquare, Sparkles } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
 interface Post {

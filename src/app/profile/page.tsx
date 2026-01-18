@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "@/lib/auth-client";
+import { useSession, signOut } from "@/lib/auth-client";
 import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, MoreHorizontal, Sparkles, Database, Users, Fingerprint, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/tweetlab/ThemeToggle";
 import Link from "next/link";
