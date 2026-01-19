@@ -40,7 +40,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <div className="relative z-10 w-full max-w-[400px] mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
                 <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl shadow-2xl">
                     {/* Decorative gradient orb */}
-                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-twitter-blue/20 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
                     <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
                     {/* Close button */}
@@ -55,7 +55,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <div className="relative px-8 py-12 flex flex-col items-center text-center">
                         {/* Logo */}
                         <div className="relative w-16 h-16 mb-6 flex items-center justify-center">
-                            <FlaskConical className="w-16 h-16 text-twitter-blue" strokeWidth={2} />
+                            <FlaskConical className="w-16 h-16 text-yellow-500" strokeWidth={2} />
                         </div>
 
                         {/* Title */}
