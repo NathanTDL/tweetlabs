@@ -8,6 +8,7 @@ interface HistoryItem {
     tweet_content: string;
     analysis: TweetAnalysis | null;
     created_at: string;
+    image_data?: string;
 }
 
 interface HistoryProps {
@@ -90,7 +91,7 @@ export function History({ onSelectHistory, hideHeader }: HistoryProps) {
             {/* Header */}
             {!hideHeader && (
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background sticky top-0 z-10 text-foreground">
-                    <HistoryIcon className="h-5 w-5 text-twitter-blue" />
+                    <HistoryIcon className="h-5 w-5 text-amber-500" />
                     <h3 className="font-bold text-[15px]">Your History</h3>
                 </div>
             )}
@@ -118,7 +119,7 @@ export function History({ onSelectHistory, hideHeader }: HistoryProps) {
                             <div
                                 key={item.id}
                                 onClick={() => onSelectHistory?.(item)}
-                                className="group relative w-full text-left p-4 hover:bg-twitter-hover transition-colors cursor-pointer"
+                                className="group relative w-full text-left p-4 hover:bg-amber-500/5 transition-colors cursor-pointer"
                             >
                                 {/* Delete Button - Absolute positioned, visible on hover */}
                                 <button
@@ -133,6 +134,17 @@ export function History({ onSelectHistory, hideHeader }: HistoryProps) {
                                 <p className="text-sm line-clamp-2 mb-2 pr-6 font-medium text-foreground">
                                     {item.tweet_content}
                                 </p>
+
+                                {/* Image Preview in History */}
+                                {item.image_data && (
+                                    <div className="mb-2 rounded-lg overflow-hidden border border-border h-32 w-full relative">
+                                        <img
+                                            src={item.image_data}
+                                            alt="History attachment"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Stats row */}
                                 {item.analysis && (

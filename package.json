@@ -20,6 +20,7 @@
     "better-auth": "^1.4.15",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.562.0",
     "next": "16.1.2",
     "pg": "^8.17.1",

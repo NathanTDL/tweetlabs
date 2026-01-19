@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { tweet } = body;
+        const { tweet, imageBase64, imageMimeType } = body;
 
         if (!tweet || typeof tweet !== "string") {
             return NextResponse.json(
@@ -44,7 +44,12 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const analysis = await simulateTweet(tweet, userContext);
+        // Prepare image data if provided
+        const imageData = imageBase64 && imageMimeType
+            ? { base64: imageBase64, mimeType: imageMimeType }
+            : undefined;
+
+        const analysis = await simulateTweet(tweet, userContext, imageData);
 
         // Fire and forget stats increment and history save
         try {

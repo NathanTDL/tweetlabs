@@ -28,7 +28,7 @@ export function UserProfile({ onLoginClick }: UserProfileProps) {
         return (
             <button
                 onClick={onLoginClick}
-                className="group flex items-center gap-3 w-full p-3 rounded-full bg-twitter-blue text-white font-bold text-[15px] hover:bg-twitter-blue/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="group flex items-center gap-3 w-full p-3 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold text-[15px] hover:from-yellow-400 hover:to-orange-400 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
                 <User className="h-5 w-5 xl:hidden" />
                 <span className="hidden xl:block mx-auto">Sign in</span>
@@ -50,7 +50,7 @@ export function UserProfile({ onLoginClick }: UserProfileProps) {
                     <div className="relative shrink-0">
                         <Avatar className="w-10 h-10 border border-border/50">
                             {session.user.image && <AvatarImage src={session.user.image} className="object-cover" />}
-                            <AvatarFallback className="bg-twitter-blue text-white font-bold">
+                            <AvatarFallback className="bg-gradient-to-br from-yellow-500 to-orange-500 text-white font-bold">
                                 {session.user.name
                                     ? session.user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
                                     : (session.user.email?.[0]?.toUpperCase() || "U")}

@@ -33,6 +33,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
     const [bio, setBio] = useState("");
     const [audience, setAudience] = useState("");
     const [aiContext, setAiContext] = useState("");
+    const [xHandle, setXHandle] = useState("");
 
     // File upload state
     const [fileInputKey, setFileInputKey] = useState(Date.now()); // to reset input
@@ -64,6 +65,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     setBio(data.user.bio || "");
                     setAudience(data.user.target_audience || "");
                     setAiContext(data.user.ai_context || "");
+                    setXHandle(data.user.x_handle || "");
                 }
             }
         } catch (e) {
@@ -120,7 +122,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     image,
                     bio,
                     target_audience: audience,
-                    ai_context: aiContext
+                    ai_context: aiContext,
+                    x_handle: xHandle
                 }),
             });
 
@@ -210,6 +213,23 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                     placeholder="Tell us about yourself..."
                                     maxLength={160}
                                 />
+                            </div>
+
+                            {/* Social Links */}
+                            <div className="space-y-2">
+                                <Label htmlFor="xHandle">X / Twitter Handle (Optional)</Label>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-muted-foreground font-bold">@</span>
+                                    <Input
+                                        id="xHandle"
+                                        value={xHandle}
+                                        onChange={(e) => setXHandle(e.target.value)}
+                                        className="bg-background border-border"
+                                        placeholder="username"
+                                        maxLength={20}
+                                    />
+                                </div>
+                                <p className="text-[13px] text-muted-foreground">Used for the Public Leaderboard link.</p>
                             </div>
 
                             {/* Persona / AI Context Section */}

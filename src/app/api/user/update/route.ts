@@ -16,7 +16,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { name, image, bio, target_audience, ai_context } = await req.json();
+        const { name, image, bio, target_audience, ai_context, x_handle, leaderboard_mode } = await req.json();
 
         // Update user in Supabase
         const { error } = await supabase
@@ -27,7 +27,9 @@ export async function POST(req: Request) {
                 bio,
                 target_audience,
                 ai_context,
-                updatedAt: new Date().toISOString()
+                x_handle,
+                leaderboard_mode,
+                updated_at: new Date().toISOString()
             })
             .eq("id", session.user.id);
 

@@ -25,6 +25,7 @@ interface Post {
         reposts: number;
         comments: number;
     };
+    image?: string;
 }
 
 interface TimelineProps {
@@ -36,6 +37,7 @@ interface TimelineProps {
     onScrollToTop?: () => void;
     selectedHistoryItem?: any; // Using any to avoid circular import or duplication, but ideally should be HistoryItem
     onLoginClick: () => void;
+    isLoading?: boolean;
 }
 
 export function Timeline({
@@ -46,7 +48,8 @@ export function Timeline({
     isChatOpen,
     onScrollToTop,
     selectedHistoryItem,
-    onLoginClick
+    onLoginClick,
+    isLoading
 }: TimelineProps) {
     const [posts, setPosts] = useState<Post[]>([]);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -142,8 +145,11 @@ export function Timeline({
         return () => clearInterval(interval);
     }, [isAnimating, currentPostId, posts]);
 
-    const handlePost = async (content: string) => {
+    const handlePost = async (content: string, imageData?: { base64: string; mimeType: string }) => {
         const postId = Date.now().toString();
+
+        // Create image preview URL from base64 if image is provided
+        const imagePreview = imageData ? `data:${imageData.mimeType};base64,${imageData.base64}` : undefined;
 
         const newPost: Post = {
             id: postId,
@@ -151,6 +157,7 @@ export function Timeline({
             time: "just now",
             stats: { comments: 0, reposts: 0, likes: 0, views: 0 },
             isSimulated: true,
+            image: imagePreview,
         };
 
         setPosts((prev) => [newPost, ...prev]);
@@ -159,38 +166,74 @@ export function Timeline({
         onAnalysisUpdate(null);
 
         try {
-            const response = await fetch("/api/simulate", {
+            const response = await fetch("/api/simulate-stream", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tweet: content }),
+                body: JSON.stringify({
+                    tweet: content,
+                    imageBase64: imageData?.base64,
+                    imageMimeType: imageData?.mimeType
+                }),
             });
 
-            const data = await response.json();
-
-            if (!response.ok || data.error) {
-                throw new Error(data.error || "Simulation failed");
+            if (!response.ok) {
+                throw new Error("Simulation failed");
             }
 
-            const analysis = data as TweetAnalysis;
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
 
-            const baseStats = {
-                views: analysis.predicted_views,
-                likes: analysis.predicted_likes,
-                reposts: analysis.predicted_retweets,
-                comments: analysis.predicted_replies,
-            };
+            if (!reader) {
+                throw new Error("No response stream");
+            }
 
-            (window as any).__tweetlab_target_stats = baseStats;
+            let analysis: TweetAnalysis | null = null;
 
-            setPosts((prev) =>
-                prev.map((p) =>
-                    p.id === postId ? { ...p, suggestions: analysis.suggestions, baseStats } : p
-                )
-            );
+            // Read the stream
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            setCurrentPostId(postId);
-            setIsAnimating(true);
-            onAnalysisUpdate(analysis);
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("\n");
+
+                for (const line of lines) {
+                    if (line.startsWith("data: ")) {
+                        const data = line.slice(6);
+                        if (data === "[DONE]") break;
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed.complete && parsed.analysis) {
+                                analysis = parsed.analysis as TweetAnalysis;
+                            }
+                        } catch {
+                            // Ignore parse errors for partial data
+                        }
+                    }
+                }
+            }
+
+            if (analysis) {
+                const baseStats = {
+                    views: analysis.predicted_views,
+                    likes: analysis.predicted_likes,
+                    reposts: analysis.predicted_retweets,
+                    comments: analysis.predicted_replies,
+                };
+
+                (window as any).__tweetlab_target_stats = baseStats;
+
+                setPosts((prev) =>
+                    prev.map((p) =>
+                        p.id === postId ? { ...p, suggestions: analysis!.suggestions, baseStats } : p
+                    )
+                );
+
+                setCurrentPostId(postId);
+                setIsAnimating(true);
+                onAnalysisUpdate(analysis);
+            }
         } catch (error) {
             console.error("Simulation error:", error);
             const fallbackStats = {
@@ -231,7 +274,7 @@ export function Timeline({
                 <h1 className="text-xl font-bold">Home</h1>
             </div>
 
-            <TweetComposer onPost={handlePost} />
+            <TweetComposer onPost={handlePost} isLoading={isLoading} />
 
             <div className="divide-y divide-border">
                 {posts.map((post) => (
@@ -247,6 +290,7 @@ export function Timeline({
                             likes={post.stats.likes}
                             views={post.stats.views}
                             isSimulated={post.isSimulated}
+                            image={post.image}
                         />
 
                         {/* Login Prompt for non-auth users */}

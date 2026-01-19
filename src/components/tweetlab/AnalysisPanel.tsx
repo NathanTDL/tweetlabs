@@ -3,6 +3,7 @@
 import { Copy, Check, Zap, TrendingUp, Sparkles } from "lucide-react";
 import { TweetAnalysis } from "@/lib/types";
 import { useState } from "react";
+import { SuperXPromo } from "./SuperXPromo";
 
 interface AnalysisPanelProps {
     analysis: TweetAnalysis | null;
@@ -31,7 +32,8 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
         }
     };
 
-    const formatNumber = (num: number) => {
+    const formatNumber = (num: number | undefined | null) => {
+        if (num === undefined || num === null) return "0";
         if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
         if (num >= 1000) return (num / 1000).toFixed(1) + "K";
         return num.toString();
@@ -162,6 +164,10 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
 
                 </div>
             )}
+            {/* SuperX Promo Component */}
+            <div className="mt-2">
+                <SuperXPromo />
+            </div>
         </div>
     );
 }

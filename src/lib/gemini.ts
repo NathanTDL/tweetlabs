@@ -7,7 +7,7 @@ const ai = new GoogleGenAI({
 
 const SIMULATION_PROMPT = `You are TweetLab, an advanced AI that simulates how a tweet might perform on Twitter (X). You have deep knowledge of viral content patterns, engagement psychology, and social media dynamics.
 
-Given a tweet text, analyze it thoroughly and output a JSON object with the following structure:
+Given a tweet text (and optionally an attached image), analyze it thoroughly and output a JSON object with the following structure:
 
 {
   "tweet": "the original tweet text",
@@ -18,12 +18,14 @@ Given a tweet text, analyze it thoroughly and output a JSON object with the foll
   "predicted_views": <integer 100-1000000>,
   "engagement_outlook": "Low" | "Medium" | "High",
   "engagement_justification": "2-3 sentence explanation of why this tweet would perform this way",
+  "image_analysis": "If an image is attached, describe its content, quality, and how it affects engagement. Otherwise set to null",
   "analysis": [
     "Hook strength: <insight>",
     "Clarity: <insight>",
     "Emotional trigger: <insight>",
     "Novelty factor: <insight>",
-    "Authority signal: <insight>"
+    "Authority signal: <insight>",
+    "Visual appeal: <insight about attached image, or 'No image attached'>"
   ],
   "suggestions": [
     {
@@ -52,6 +54,8 @@ Guidelines:
 - Make alternative tweets genuinely better, not just different
 - Keep alternative tweets under 280 characters
 - Do not generate hashtags
+- If an image is attached, analyze how the image content, quality, and relevance affects engagement
+- Consider image-text synergy: does the image enhance or distract from the message?
 - Output ONLY valid JSON, no additional text or markdown
 
 Now simulate the following tweet:`;
@@ -73,7 +77,12 @@ interface UserContext {
     aiContext?: string;
 }
 
-export async function simulateTweet(tweetContent: string, context?: UserContext) {
+interface ImageData {
+    base64: string;
+    mimeType: string;
+}
+
+export async function simulateTweet(tweetContent: string, context?: UserContext, imageData?: ImageData) {
     try {
         let promptWithContext = SIMULATION_PROMPT;
 
@@ -90,9 +99,26 @@ For example, if the audience is "Investors", prioritize authority and clarity. I
             promptWithContext += contextString;
         }
 
+        // Build contents based on whether image is provided
+        type ContentPart = { text: string } | { inlineData: { mimeType: string; data: string } };
+        let contents: string | ContentPart[];
+        if (imageData) {
+            contents = [
+                {
+                    inlineData: {
+                        mimeType: imageData.mimeType,
+                        data: imageData.base64,
+                    },
+                },
+                { text: `${promptWithContext}\nTweet: "${tweetContent}"` },
+            ];
+        } else {
+            contents = `${promptWithContext}\nTweet: "${tweetContent}"`;
+        }
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: `${promptWithContext}\nTweet: "${tweetContent}"`,
+            contents,
             config: {
                 responseMimeType: "application/json",
             },
@@ -132,3 +158,75 @@ export async function chatWithAI(
         throw error;
     }
 }
+
+export async function* simulateTweetStream(
+    tweetContent: string,
+    context?: UserContext,
+    imageData?: ImageData
+): AsyncGenerator<{ partial?: string; complete?: boolean; analysis?: unknown }> {
+    try {
+        let promptWithContext = SIMULATION_PROMPT;
+
+        if (context) {
+            const contextString = `
+User Persona Context:
+${context.bio ? `- Bio: ${context.bio}` : ''}
+${context.targetAudience ? `- Target Audience: ${context.targetAudience}` : ''}
+${context.aiContext ? `- Additional Behaviors/Context: ${context.aiContext}` : ''}
+
+CRITICAL INSTRUCTION: Adjust your analysis ("likely", "tends to") and SUGGESTIONS based on this specific persona. 
+For example, if the audience is "Investors", prioritize authority and clarity. If "Gen Z", prioritize novelty and memes.
+`;
+            promptWithContext += contextString;
+        }
+
+        // Build contents based on whether image is provided
+        type ContentPart = { text: string } | { inlineData: { mimeType: string; data: string } };
+        let contents: string | ContentPart[];
+        if (imageData) {
+            contents = [
+                {
+                    inlineData: {
+                        mimeType: imageData.mimeType,
+                        data: imageData.base64,
+                    },
+                },
+                { text: `${promptWithContext}\nTweet: "${tweetContent}"` },
+            ];
+        } else {
+            contents = `${promptWithContext}\nTweet: "${tweetContent}"`;
+        }
+
+        // Use streaming for faster response
+        const response = await ai.models.generateContentStream({
+            model: "gemini-2.5-flash",
+            contents,
+            config: {
+                responseMimeType: "application/json",
+            },
+        });
+
+        let fullText = "";
+
+        for await (const chunk of response) {
+            const text = chunk.text;
+            if (text) {
+                fullText += text;
+                yield { partial: fullText };
+            }
+        }
+
+        // Parse the complete JSON response
+        try {
+            const analysis = JSON.parse(fullText);
+            yield { complete: true, analysis };
+        } catch {
+            // If parsing fails, yield what we have
+            yield { complete: true, analysis: { error: "Failed to parse response" } };
+        }
+    } catch (error) {
+        console.error("Error streaming tweet simulation:", error);
+        throw error;
+    }
+}
+

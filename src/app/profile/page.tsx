@@ -20,6 +20,7 @@ interface HistoryItem {
     tweet_content: string;
     analysis: TweetAnalysis | null;
     created_at: string;
+    image_data?: string;
 }
 
 interface UserProfileData {
@@ -69,6 +70,22 @@ export default function ProfilePage() {
         month: 'long',
         year: 'numeric'
     });
+
+    const handleDelete = async (id: string) => {
+        // Optimistically remove
+        setHistory(prev => prev.filter(h => h.id !== id));
+
+        try {
+            await fetch('/api/history', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+        } catch (error) {
+            console.error("Failed to delete", error);
+            // Could revert logic here if strict consistency needed
+        }
+    };
 
     return (
         <div className="flex min-h-screen justify-center bg-background text-foreground transition-colors duration-200">
@@ -231,6 +248,8 @@ export default function ProfilePage() {
                                 likes={item.analysis?.predicted_likes || 0}
                                 views={item.analysis?.predicted_views || 0}
                                 isSimulated={true}
+                                image={item.image_data}
+                                onDelete={() => handleDelete(item.id)}
                             />
                         ))
                     ) : (

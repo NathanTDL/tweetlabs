@@ -100,8 +100,8 @@ export function AIChat({ isOpen, currentTweet, hideHeader, autoFocus = true }: A
             {/* Header - Only show if not hidden */}
             {!hideHeader && (
                 <div className="flex items-center gap-2 p-3 border-b border-border bg-secondary/30 shrink-0">
-                    <div className="p-1 min-w-[24px] bg-twitter-blue/10 rounded-lg">
-                        <Sparkles className="h-4 w-4 text-twitter-blue" />
+                    <div className="p-1 min-w-[24px] bg-amber-500/10 rounded-lg">
+                        <Sparkles className="h-4 w-4 text-amber-500" />
                     </div>
                     <div>
                         <h2 className="font-bold text-[14px] leading-tight">AI Assistant</h2>
@@ -124,8 +124,8 @@ export function AIChat({ isOpen, currentTweet, hideHeader, autoFocus = true }: A
             <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
                 {messages.length === 0 && (
                     <div className="h-full flex flex-col items-center justify-center text-center px-2">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-twitter-blue/20 to-purple-500/20 flex items-center justify-center mb-3">
-                            <Sparkles className="h-5 w-5 text-twitter-blue" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center mb-3">
+                            <Sparkles className="h-5 w-5 text-amber-500" />
                         </div>
                         <h3 className="font-semibold text-[14px] mb-1">How can I help?</h3>
                         <div className="flex flex-col gap-1.5 w-full">
@@ -153,7 +153,7 @@ export function AIChat({ isOpen, currentTweet, hideHeader, autoFocus = true }: A
                     >
                         <div
                             className={`max-w-[90%] px-3 py-2 rounded-2xl text-[13px] leading-snug ${message.role === "user"
-                                ? "bg-twitter-blue text-white rounded-br-sm"
+                                ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-br-sm"
                                 : "bg-secondary rounded-bl-sm"
                                 }`}
                         >
@@ -197,13 +197,13 @@ export function AIChat({ isOpen, currentTweet, hideHeader, autoFocus = true }: A
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Type..."
-                        className="flex-1 bg-secondary border border-border rounded-full px-3 py-2 text-[13px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-twitter-blue focus:border-transparent transition-all min-w-0"
+                        className="flex-1 bg-secondary border border-border rounded-full px-3 py-2 text-[13px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-transparent transition-all min-w-0"
                         disabled={isLoading}
                     />
                     <Button
                         onClick={() => handleSend()}
                         disabled={!input.trim() || isLoading}
-                        className="bg-twitter-blue hover:bg-twitter-blue/90 text-white rounded-full h-[34px] w-[34px] p-0 disabled:opacity-50 shrink-0"
+                        className="bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white rounded-full h-[34px] w-[34px] p-0 disabled:opacity-50 shrink-0"
                     >
                         <Send size={14} />
                     </Button>

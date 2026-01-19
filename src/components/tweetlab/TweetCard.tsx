@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Repeat, Heart, BarChart2, Share, MoreHorizontal } from "lucide-react";
+import { MessageCircle, Repeat, Heart, BarChart2, Share, MoreHorizontal, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -14,9 +14,11 @@ interface TweetCardProps {
     likes: number;
     views: number;
     isSimulated?: boolean;
+    image?: string | null;
+    onDelete?: () => void;
 }
 
-export function TweetCard({ name, handle, avatar, time, content, comments, reposts, likes, views, isSimulated }: TweetCardProps) {
+export function TweetCard({ name, handle, avatar, time, content, comments, reposts, likes, views, isSimulated, image, onDelete }: TweetCardProps) {
     return (
         <div className={cn(
             "flex gap-3 px-4 py-3 border-b border-border cursor-pointer hover:bg-twitter-hover transition-colors",
@@ -38,14 +40,37 @@ export function TweetCard({ name, handle, avatar, time, content, comments, repos
                         <span className="text-muted-foreground">·</span>
                         <span className="text-muted-foreground hover:underline">{time}</span>
                     </div>
-                    <button className="text-muted-foreground hover:bg-twitter-blue/10 hover:text-twitter-blue rounded-full p-1.5 -mr-2 transition-colors">
-                        <MoreHorizontal size={17} />
-                    </button>
+                    {onDelete ? (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete();
+                            }}
+                            className="text-muted-foreground hover:bg-red-500/10 hover:text-red-500 rounded-full p-1.5 -mr-2 transition-colors"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    ) : (
+                        <button className="text-muted-foreground hover:bg-twitter-blue/10 hover:text-twitter-blue rounded-full p-1.5 -mr-2 transition-colors">
+                            <MoreHorizontal size={17} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="mt-0.5 text-[15px] leading-[1.35] whitespace-pre-wrap">
                     {content}
                 </div>
+
+                {/* Image Display */}
+                {image && (
+                    <div className="mt-3 rounded-2xl overflow-hidden border border-border">
+                        <img
+                            src={image}
+                            alt="Tweet attachment"
+                            className="w-full max-h-[512px] object-cover"
+                        />
+                    </div>
+                )}
 
                 <div className="flex justify-between mt-3 max-w-[425px] text-muted-foreground">
                     {/* Replies */}
