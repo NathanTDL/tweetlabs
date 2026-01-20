@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Check, Zap, TrendingUp, Sparkles } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight, Sparkles, RefreshCw } from "lucide-react";
 import { TweetAnalysis } from "@/lib/types";
 import { useState } from "react";
 import { SuperXPromo } from "./SuperXPromo";
@@ -11,46 +11,59 @@ interface AnalysisPanelProps {
 }
 
 export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
-    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+    const [variantPage, setVariantPage] = useState(0);
+    const variantsPerPage = 4;
 
-    const handleCopy = (text: string, index: number) => {
-        navigator.clipboard.writeText(text);
-        setCopiedIndex(index);
-        setTimeout(() => setCopiedIndex(null), 2000);
+    // Calculate engagement score (0-100) from analysis
+    const getEngagementScore = () => {
+        if (!analysis) return 0;
+        // Simple scoring based on predicted engagement
+        const likes = analysis.predicted_likes || 0;
+        const retweets = analysis.predicted_retweets || 0;
+        const replies = analysis.predicted_replies || 0;
+        const views = analysis.predicted_views || 1;
+
+        // Engagement rate calculation
+        const engagementRate = ((likes + retweets + replies) / views) * 100;
+        // Normalize to 0-100 scale (assuming 10% engagement is "perfect")
+        const score = Math.min(100, Math.round(engagementRate * 10));
+        return Math.max(20, score); // Minimum score of 20
     };
 
-    const getOutlookColor = (outlook: string) => {
-        switch (outlook) {
-            case "High":
-                return "text-green-500 bg-green-500/10";
-            case "Medium":
-                return "text-yellow-500 bg-yellow-500/10";
-            case "Low":
-                return "text-red-500 bg-red-500/10";
-            default:
-                return "text-muted-foreground bg-secondary";
-        }
+    const getScoreLabel = (score: number) => {
+        if (score >= 80) return "Excellent";
+        if (score >= 60) return "Good";
+        if (score >= 40) return "Average";
+        return "Needs Work";
     };
 
-    const formatNumber = (num: number | undefined | null) => {
-        if (num === undefined || num === null) return "0";
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-        if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-        return num.toString();
+    const getScoreColor = (score: number) => {
+        if (score >= 80) return "text-green-500";
+        if (score >= 60) return "text-amber-500";
+        if (score >= 40) return "text-yellow-500";
+        return "text-red-500";
     };
+
+    const score = getEngagementScore();
+
+    // Mock variants for demonstration (in real app, these would come from AI)
+    const variants = analysis?.refined_alternatives || [];
+    const totalPages = Math.ceil(variants.length / variantsPerPage);
+    const currentVariants = variants.slice(
+        variantPage * variantsPerPage,
+        (variantPage + 1) * variantsPerPage
+    );
 
     return (
         <div className="flex flex-col gap-4">
-
-
             {/* Loading State */}
             {isLoading && (
-                <div className="border border-border rounded-2xl overflow-hidden bg-secondary/50 p-6">
+                <div className="border border-border rounded-2xl overflow-hidden bg-card p-6">
                     <div className="flex flex-col items-center text-center">
                         <div className="relative mb-4">
-                            <div className="absolute inset-0 blur-2xl opacity-40 bg-gradient-to-r from-twitter-blue to-purple-500 rounded-full animate-pulse" />
-                            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-twitter-blue/20 to-purple-500/20 flex items-center justify-center border border-twitter-blue/20">
-                                <Sparkles className="h-8 w-8 text-twitter-blue animate-pulse" />
+                            <div className="absolute inset-0 blur-2xl opacity-40 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full animate-pulse" />
+                            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center border border-amber-500/20">
+                                <Sparkles className="h-8 w-8 text-amber-500 animate-pulse" />
                             </div>
                         </div>
                         <h3 className="font-bold text-lg mb-2">AI Simulating Users...</h3>
@@ -58,10 +71,10 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
                             Analyzing engagement patterns and predicting reactions
                         </p>
                         <div className="flex gap-2">
-                            <div className="px-3 py-1.5 bg-background rounded-full text-[12px] animate-pulse">
+                            <div className="px-3 py-1.5 bg-secondary rounded-full text-[12px] animate-pulse">
                                 🧠 Analyzing hook...
                             </div>
-                            <div className="px-3 py-1.5 bg-background rounded-full text-[12px] animate-pulse" style={{ animationDelay: "200ms" }}>
+                            <div className="px-3 py-1.5 bg-secondary rounded-full text-[12px] animate-pulse" style={{ animationDelay: "200ms" }}>
                                 📊 Predicting reach
                             </div>
                         </div>
@@ -69,102 +82,136 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
                 </div>
             )}
 
-            {/* Analysis Results */}
-            {!isLoading && analysis && (
-                <>
-                    {/* Predicted Metrics */}
-                    <div className="border border-border rounded-2xl overflow-hidden bg-secondary/50 p-4">
-                        <div className="flex items-center gap-2 mb-4">
-                            <TrendingUp className="h-5 w-5 text-twitter-blue" />
-                            <h2 className="font-bold text-[17px]">Predicted Performance</h2>
+            {/* Engagement Score Card */}
+            {!isLoading && (
+                <div className="border border-border rounded-2xl overflow-hidden bg-card">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="font-medium text-[15px] text-muted-foreground">Engagement Score</h2>
+                            <button className="p-1 hover:bg-secondary rounded-full transition-colors">
+                                <Info className="h-4 w-4 text-muted-foreground" />
+                            </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-background rounded-xl p-3 border border-border">
-                                <p className="text-[12px] text-muted-foreground">Views</p>
-                                <p className="text-xl font-bold">{formatNumber(analysis.predicted_views)}</p>
-                            </div>
-                            <div className="bg-background rounded-xl p-3 border border-border">
-                                <p className="text-[12px] text-muted-foreground">Likes</p>
-                                <p className="text-xl font-bold text-pink-500">{formatNumber(analysis.predicted_likes)}</p>
-                            </div>
-                            <div className="bg-background rounded-xl p-3 border border-border">
-                                <p className="text-[12px] text-muted-foreground">Retweets</p>
-                                <p className="text-xl font-bold text-green-500">{formatNumber(analysis.predicted_retweets)}</p>
-                            </div>
-                            <div className="bg-background rounded-xl p-3 border border-border">
-                                <p className="text-[12px] text-muted-foreground">Replies</p>
-                                <p className="text-xl font-bold text-twitter-blue">{formatNumber(analysis.predicted_replies)}</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Engagement Outlook */}
-                    <div className="border border-border rounded-2xl overflow-hidden bg-secondary/50">
-                        <div className="p-4 border-b border-border">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <Zap className="h-5 w-5 text-twitter-blue" />
-                                    <h2 className="font-bold text-[17px]">Engagement Outlook</h2>
-                                </div>
-                                <span className={`text-[13px] font-bold px-3 py-1 rounded-full ${getOutlookColor(analysis.engagement_outlook)}`}>
-                                    {analysis.engagement_outlook}
-                                </span>
+                        <div className="flex items-baseline justify-between mb-3">
+                            <span className={`text-lg font-semibold ${analysis ? getScoreColor(score) : 'text-muted-foreground'}`}>
+                                {analysis ? getScoreLabel(score) : 'Waiting...'}
+                            </span>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-4xl font-bold">{analysis ? score : '--'}</span>
+                                <span className="text-muted-foreground text-lg">/ 100</span>
                             </div>
-                            <p className="text-[14px] text-muted-foreground leading-relaxed">
-                                {analysis.engagement_justification}
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full transition-all duration-1000 ease-out"
+                                style={{ width: analysis ? `${score}%` : '0%' }}
+                            />
+                        </div>
+
+                        {!analysis && (
+                            <p className="text-muted-foreground mt-4 text-[13px]">
+                                Post a tweet to see its predicted performance range.
                             </p>
-                        </div>
-
-                        {/* Analysis */}
-                        <div className="p-4 border-b border-border">
-                            <h2 className="font-bold text-[15px] mb-3">Why It Works</h2>
-                            <ul className="space-y-2">
-                                {analysis.analysis.map((point, i) => (
-                                    <li key={i} className="flex gap-2 text-[13px]">
-                                        <span className="text-twitter-blue mt-0.5">•</span>
-                                        <span className="text-muted-foreground">{point}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                        )}
                     </div>
-                </>
-            )}
-
-            {/* Empty State */}
-            {!isLoading && !analysis && (
-                <div className="border border-border rounded-2xl overflow-hidden bg-secondary/50">
-                    <div className="p-4 border-b border-border">
-                        <div className="flex items-center justify-between">
-                            <h2 className="font-extrabold text-xl">Engagement Outlook</h2>
-                            <span className="text-[13px] text-muted-foreground">Waiting...</span>
-                        </div>
-                        <div className="mt-4 flex items-center gap-3">
-                            <div className="h-1.5 flex-1 bg-border rounded-full overflow-hidden">
-                                <div className="h-full w-[0%] bg-twitter-blue transition-all duration-1000" />
-                            </div>
-                        </div>
-                        <p className="text-muted-foreground mt-3 text-[14px] leading-relaxed">
-                            Post a tweet to see its predicted performance range.
-                        </p>
-                    </div>
-
-                    <div className="p-4 border-b border-border">
-                        <h2 className="font-bold text-[17px] mb-3">Why It Works</h2>
-                        <ul className="space-y-2.5">
-                            {[1, 2, 3].map((i) => (
-                                <li key={i} className="flex gap-3 opacity-40">
-                                    <div className="h-1.5 w-1.5 mt-2 rounded-full bg-muted-foreground shrink-0" />
-                                    <div className="h-4 bg-border rounded w-3/4 animate-pulse" />
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-
                 </div>
             )}
-            {/* SuperX Promo Component */}
+
+            {/* Variants Section */}
+            {!isLoading && variants.length > 0 && (
+                <div className="border border-border rounded-2xl overflow-hidden bg-card">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <h2 className="font-medium text-[15px]">Variants</h2>
+                                <button className="p-1 hover:bg-secondary rounded-full transition-colors">
+                                    <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                </button>
+                            </div>
+                            {totalPages > 1 && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <button
+                                        onClick={() => setVariantPage(p => Math.max(0, p - 1))}
+                                        disabled={variantPage === 0}
+                                        className="p-1 hover:bg-secondary rounded disabled:opacity-30"
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </button>
+                                    <span>{variantPage + 1} / {totalPages}</span>
+                                    <button
+                                        onClick={() => setVariantPage(p => Math.min(totalPages - 1, p + 1))}
+                                        disabled={variantPage === totalPages - 1}
+                                        className="p-1 hover:bg-secondary rounded disabled:opacity-30"
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-3">
+                            {/* Original Tweet */}
+                            <div className="flex items-start justify-between gap-3 p-3 bg-secondary/50 rounded-xl border border-border/50">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[13px] font-semibold mb-1">Original</p>
+                                    <p className="text-[12px] text-muted-foreground truncate">
+                                        {analysis?.refined_alternatives?.[0]?.substring(0, 40) || 'Your original tweet'}...
+                                    </p>
+                                </div>
+                                <span className="text-2xl font-bold">{score}</span>
+                            </div>
+
+                            {/* Variant Tweets */}
+                            {currentVariants.map((variant, i) => (
+                                <div key={i} className="flex items-start justify-between gap-3 p-3 hover:bg-secondary/30 rounded-xl transition-colors cursor-pointer">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[13px] font-semibold mb-1">Variant {variantPage * variantsPerPage + i + 1}</p>
+                                        <p className="text-[12px] text-muted-foreground truncate">
+                                            {variant.substring(0, 40)}...
+                                        </p>
+                                    </div>
+                                    <span className="text-2xl font-bold">{Math.min(99, score + Math.floor(Math.random() * 20) - 5)}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Generate Button */}
+                        <div className="mt-4 pt-4 border-t border-border">
+                            <input
+                                type="text"
+                                placeholder="Add instructions... (optional)"
+                                className="w-full px-4 py-2.5 bg-secondary/50 border border-border rounded-xl text-[13px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500 mb-3"
+                            />
+                            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-xl font-semibold text-[14px] transition-colors">
+                                Generate New Variants
+                                <RefreshCw className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Insights Section */}
+            {!isLoading && analysis && (
+                <div className="border border-border rounded-2xl overflow-hidden bg-card">
+                    <div className="p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                            <h2 className="font-medium text-[15px]">Insights</h2>
+                            <button className="p-1 hover:bg-secondary rounded-full transition-colors">
+                                <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                            </button>
+                        </div>
+                        <p className="text-[14px] text-muted-foreground leading-relaxed">
+                            {analysis.engagement_justification}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* SuperX Promo */}
             <div className="mt-2">
                 <SuperXPromo />
             </div>

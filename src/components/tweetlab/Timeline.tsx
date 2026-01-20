@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
+import { SimulationLoader } from "./SimulationLoader";
 import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
-import { Copy, Check, Home, MessageSquare, Sparkles } from "lucide-react";
+import { Copy, Check, Home, MessageSquare, Sparkles, HelpCircle, Zap, TrendingUp, MessageCircle } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
 interface Post {
@@ -56,6 +57,8 @@ export function Timeline({
     const [currentPostId, setCurrentPostId] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [globalStats, setGlobalStats] = useState<number>(0);
+    const [loadingPostId, setLoadingPostId] = useState<string | null>(null);
+    const [expandedReason, setExpandedReason] = useState<string | null>(null);
     const { data: session } = useSession();
 
     useEffect(() => {
@@ -164,6 +167,7 @@ export function Timeline({
         onTweetChange(content);
         onLoadingChange(true);
         onAnalysisUpdate(null);
+        setLoadingPostId(postId);
 
         try {
             const response = await fetch("/api/simulate-stream", {
@@ -247,6 +251,7 @@ export function Timeline({
             setIsAnimating(true);
         } finally {
             onLoadingChange(false);
+            setLoadingPostId(null);
         }
     };
 
@@ -292,6 +297,11 @@ export function Timeline({
                             isSimulated={post.isSimulated}
                             image={post.image}
                         />
+
+                        {/* Simulation Loading Animation */}
+                        {loadingPostId === post.id && (
+                            <SimulationLoader />
+                        )}
 
                         {/* Login Prompt for non-auth users */}
                         {!session?.user && post.isSimulated && (

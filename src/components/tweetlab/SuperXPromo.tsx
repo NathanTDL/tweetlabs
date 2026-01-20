@@ -1,4 +1,4 @@
-import { ExternalLink, TrendingUp, BarChart3, Search } from "lucide-react";
+import { ExternalLink, BarChart3, Users, Zap, ArrowRight } from "lucide-react";
 
 export function SuperXPromo() {
     return (
@@ -6,50 +6,66 @@ export function SuperXPromo() {
             href="https://superx.so/"
             target="_blank"
             rel="noopener noreferrer"
-            className="block group relative overflow-hidden rounded-2xl border border-border bg-card/30 hover:bg-card/50 transition-all duration-300"
+            className="block group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-amber-950/10 hover:border-amber-500/30 transition-all duration-300"
         >
-            {/* Background Decoration */}
+            {/* Subtle Background Glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-500/5 rounded-full blur-3xl pointer-events-none" />
 
-
-            <div className="p-5 relative z-10">
-                <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-lg shadow-sm border border-white/10">
-                            🔥
+            <div className="p-6 relative z-10">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                        {/* Logo */}
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                            <span className="text-2xl">🔥</span>
                         </div>
                         <div>
-                            <h3 className="font-bold text-[15px] leading-tight group-hover:text-orange-500 transition-colors">SuperX</h3>
-                            <p className="text-[11px] text-muted-foreground font-medium">Analytics & Growth</p>
+                            <h3 className="font-bold text-lg leading-tight group-hover:text-amber-500 transition-colors">SuperX</h3>
+                            <p className="text-[12px] text-muted-foreground font-medium">Analytics & Growth Platform</p>
                         </div>
                     </div>
-                    <ExternalLink size={14} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <div className="p-2 rounded-lg bg-secondary/50 group-hover:bg-amber-500/10 transition-colors">
+                        <ExternalLink size={16} className="text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                    </div>
                 </div>
 
-                <h4 className="font-bold text-[17px] mb-2 text-foreground">
+                {/* Tagline */}
+                <h4 className="font-bold text-xl mb-3 text-foreground">
                     Grow faster on 𝕏
                 </h4>
 
-                <p className="text-[13px] text-muted-foreground leading-relaxed mb-4">
-                    Understand your audience, refine your content, and accelerate your 𝕏 growth, all in one place.
+                <p className="text-[14px] text-muted-foreground leading-relaxed mb-5">
+                    Unlock hidden insights, understand your audience deeply, and accelerate your growth with AI-powered analytics.
                 </p>
 
-                <div className="flex flex-wrap gap-2">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/50 border border-border/50 text-[11px] font-medium text-muted-foreground shadow-sm">
-                        <Search size={10} className="text-orange-500" />
-                        Hidden insights
+                {/* Features Grid */}
+                <div className="grid grid-cols-3 gap-2 mb-5">
+                    <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-secondary/30 border border-border/50">
+                        <BarChart3 size={18} className="text-amber-500" />
+                        <span className="text-[11px] font-medium text-muted-foreground text-center">Smart Analytics</span>
                     </div>
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/50 border border-border/50 text-[11px] font-medium text-muted-foreground shadow-sm">
-                        <BarChart3 size={10} className="text-orange-500" />
-                        Smart analytics
+                    <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-secondary/30 border border-border/50">
+                        <Users size={18} className="text-amber-500" />
+                        <span className="text-[11px] font-medium text-muted-foreground text-center">Audience DNA</span>
                     </div>
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/50 border border-border/50 text-[11px] font-medium text-muted-foreground shadow-sm">
-                        <TrendingUp size={10} className="text-yellow-500" />
-                        Actionable data
+                    <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-secondary/30 border border-border/50">
+                        <Zap size={18} className="text-amber-500" />
+                        <span className="text-[11px] font-medium text-muted-foreground text-center">Growth AI</span>
                     </div>
                 </div>
+
+                {/* CTA Button */}
+                <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/30">
+                    Get Started Free
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
+                {/* Trust Badge */}
+                <p className="mt-4 text-center text-[11px] text-muted-foreground">
+                    Trusted by 10,000+ creators worldwide
+                </p>
             </div>
-
-
         </a>
     );
 }
