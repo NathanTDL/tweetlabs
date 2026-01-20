@@ -31,7 +31,7 @@ const STATUS_MESSAGES = [
 
 export function SimulationLoader() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number>(0);
     const nodesRef = useRef<Node[]>([]);
     const [statusIndex, setStatusIndex] = useState(0);
 

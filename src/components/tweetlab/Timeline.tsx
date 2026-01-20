@@ -5,7 +5,7 @@ import { TweetComposer } from "./Composer";
 import { TweetCard } from "./TweetCard";
 import { SimulationLoader } from "./SimulationLoader";
 import { TweetAnalysis, TweetSuggestion } from "@/lib/types";
-import { Copy, Check, Home, MessageSquare, Sparkles, HelpCircle, Zap, TrendingUp, MessageCircle } from "lucide-react";
+import { Copy, Check, Home, MessageSquare, Sparkles, HelpCircle, Zap, TrendingUp, MessageCircle, ArrowLeft, Users } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
 interface Post {
@@ -341,46 +341,137 @@ export function Timeline({
                             <div className="border-t border-border">
                                 {/* Clean Header */}
                                 <div className="px-4 py-3 border-b border-border bg-secondary/20">
-                                    <h3 className="text-[15px] font-semibold">Improved Versions</h3>
-                                    <p className="text-[13px] text-muted-foreground mt-0.5">Higher predicted engagement</p>
+                                    <h3 className="text-[15px] font-semibold flex items-center gap-2">
+                                        <Zap className="w-4 h-4 text-twitter-blue fill-twitter-blue" />
+                                        Optimized Variations
+                                    </h3>
+                                    <p className="text-[13px] text-muted-foreground mt-0.5 ml-6">Higher predicted engagement</p>
                                 </div>
 
                                 {/* Suggestion Tweet Cards */}
                                 {post.suggestions.map((suggestion, idx) => {
                                     const improvedStats = getImprovedStats(post.baseStats, idx);
+                                    const isExpanded = expandedReason === `${post.id}-${idx}`;
+
+                                    // Generate a rating based on stats (0-100)
+                                    const rating = Math.min(99, Math.floor(improvedStats.likes / 5));
+                                    const ratingColor = rating > 80 ? "text-green-500" : rating > 50 ? "text-yellow-500" : "text-orange-500";
+                                    const ratingBg = rating > 80 ? "bg-green-500/10 border-green-500/20" : rating > 50 ? "bg-yellow-500/10 border-yellow-500/20" : "bg-orange-500/10 border-orange-500/20";
 
                                     return (
-                                        <div key={idx} className="relative group border-b border-border last:border-b-0">
-                                            {/* Copy Button */}
-                                            <button
-                                                onClick={() => handleCopy(suggestion.tweet, `${post.id}-${idx}`)}
-                                                className="absolute top-3 right-3 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-twitter-blue/10 hover:border-twitter-blue/30 transition-all opacity-0 group-hover:opacity-100"
-                                                title="Copy tweet"
-                                            >
-                                                {copiedId === `${post.id}-${idx}` ? (
-                                                    <Check size={15} className="text-green-500" />
-                                                ) : (
-                                                    <Copy size={15} className="text-muted-foreground" />
+                                        <div
+                                            key={idx}
+                                            className={`relative group border-b border-border last:border-b-0 bg-background hover:bg-secondary/5 transition-all duration-300 ${isExpanded ? 'min-h-[350px]' : ''}`}
+                                        >
+                                            {/* Minimal Question Mark Button */}
+                                            <div className="absolute top-3 right-3 z-20">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setExpandedReason(isExpanded ? null : `${post.id}-${idx}`);
+                                                    }}
+                                                    className={`p-1.5 rounded-full transition-all duration-200 ${isExpanded ? 'bg-twitter-blue text-white rotate-180' : 'text-muted-foreground hover:bg-twitter-blue/10 hover:text-twitter-blue'}`}
+                                                    title={isExpanded ? "Close analysis" : "View analysis"}
+                                                >
+                                                    {isExpanded ? <Zap size={15} className="fill-current" /> : <HelpCircle size={15} />}
+                                                </button>
+                                            </div>
+
+                                            {/* Wrapper for TweetCard to handle overlay positioning */}
+                                            <div className="relative">
+                                                <TweetCard
+                                                    name={session?.user?.name || "You"}
+                                                    handle="you"
+                                                    avatar={session?.user?.image}
+                                                    time={`optimized · ${rating}`}
+                                                    content={suggestion.tweet}
+                                                    comments={improvedStats.comments}
+                                                    reposts={improvedStats.reposts}
+                                                    likes={improvedStats.likes}
+                                                    views={improvedStats.views}
+                                                    isSimulated={false}
+                                                    hideMenu={true}
+                                                />
+
+                                                {/* Analysis Overlay */}
+                                                {isExpanded && (
+                                                    <div
+                                                        className="absolute inset-0 z-10 bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in duration-200"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // prevent closing on inner click if needed, or allow close
+                                                            // setExpandedReason(null); // Optional: close on click anywhere
+                                                        }}
+                                                    >
+                                                        {/* Close Button (Back) */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setExpandedReason(null);
+                                                            }}
+                                                            className="absolute top-3 right-3 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                                                        >
+                                                            <ArrowLeft size={18} />
+                                                        </button>
+
+                                                        {/* Score Badge (Golden) */}
+                                                        <div className="mb-6 mt-8 px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 flex items-center gap-2 text-yellow-500 shadow-[0_0_15px_-3px_rgba(234,179,8,0.2)]">
+                                                            <TrendingUp className="w-4 h-4" />
+                                                            <span className="font-bold text-sm tracking-wide">{rating} Engagement Score</span>
+                                                        </div>
+
+                                                        {/* Insights Container */}
+                                                        <div className="w-full max-w-[90%] space-y-5 text-center">
+
+                                                            {/* Main Reason */}
+                                                            <div>
+                                                                <h4 className="text-sm font-semibold text-foreground mb-1">
+                                                                    {suggestion.version} Approach
+                                                                </h4>
+                                                                <p className="text-[14px] leading-relaxed text-muted-foreground">
+                                                                    {suggestion.reason}
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Audience Reactions (Simulated) */}
+                                                            {suggestion.audience_reactions && suggestion.audience_reactions.length > 0 && (
+                                                                <div className="pt-2 border-t border-border/50 mt-4">
+                                                                    <div className="flex items-center justify-center gap-2 mb-3 text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                                                                        <Users size={12} />
+                                                                        Projected Reactions
+                                                                    </div>
+                                                                    <div className="grid gap-2">
+                                                                        {suggestion.audience_reactions.slice(0, 2).map((reaction, rIdx) => (
+                                                                            <div key={rIdx} className="bg-secondary/30 px-3 py-2 rounded-lg text-xs italic text-muted-foreground/80">
+                                                                                "{reaction}"
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Copy Action */}
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleCopy(suggestion.tweet, `${post.id}-${idx}`);
+                                                                }}
+                                                                className="mx-auto mt-2 flex items-center gap-2 text-xs font-semibold text-yellow-500 hover:text-yellow-400 transition-colors uppercase tracking-wide"
+                                                            >
+                                                                {copiedId === `${post.id}-${idx}` ? (
+                                                                    <>
+                                                                        <Check size={14} />
+                                                                        Copied
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Copy size={14} />
+                                                                        Use This Version
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 )}
-                                            </button>
-
-                                            {/* Tweet Card */}
-                                            <TweetCard
-                                                name={session?.user?.name || "You"}
-                                                handle="you"
-                                                avatar={session?.user?.image}
-                                                time="optimized"
-                                                content={suggestion.tweet}
-                                                comments={improvedStats.comments}
-                                                reposts={improvedStats.reposts}
-                                                likes={improvedStats.likes}
-                                                views={improvedStats.views}
-                                                isSimulated={false}
-                                            />
-
-                                            {/* Why it's better */}
-                                            <div className="px-4 pt-1 pb-4 text-[13px] leading-relaxed text-muted-foreground ml-[52px]">
-                                                {suggestion.reason}
                                             </div>
                                         </div>
                                     );

@@ -19,9 +19,14 @@ CRITICAL: Suggestions MUST keep EXACT original format - same emojis (👉✅📌
   "engagement_justification": "1-2 sentences why",
   "analysis": ["Hook: insight", "Clarity: insight", "Emotion: insight", "Authority: insight"],
   "suggestions": [
-    {"version": "Curiosity", "tweet": "KEEP ORIGINAL FORMAT with emojis/breaks", "reason": "15 words max"},
-    {"version": "Authority", "tweet": "KEEP ORIGINAL FORMAT", "reason": "15 words max"},
-    {"version": "Controversy", "tweet": "KEEP ORIGINAL FORMAT", "reason": "15 words max"}
+    {
+      "version": "Curiosity", 
+      "tweet": "KEEP ORIGINAL FORMAT", 
+      "reason": "15 words max",
+      "audience_reactions": ["Reaction 1 (e.g. 'Love this angle')", "Reaction 2 (e.g. 'I'd click this')", "Reaction 3 (e.g. 'Makes me think')"]
+    },
+    { "version": "Authority", "tweet": "KEEP FORMAT", "reason": "15 words", "audience_reactions": ["Reaction 1", "Reaction 2", "Reaction 3"] },
+    { "version": "Controversy", "tweet": "KEEP FORMAT", "reason": "15 words", "audience_reactions": ["Reaction 1", "Reaction 2", "Reaction 3"] }
   ]
 }
 

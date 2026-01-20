@@ -4,6 +4,7 @@ export interface TweetSuggestion {
     version: "Curiosity" | "Authority" | "Controversy";
     tweet: string;
     reason: string;
+    audience_reactions: string[];
 }
 
 export interface TweetAnalysis {

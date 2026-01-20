@@ -16,9 +16,10 @@ interface TweetCardProps {
     isSimulated?: boolean;
     image?: string | null;
     onDelete?: () => void;
+    hideMenu?: boolean;
 }
 
-export function TweetCard({ name, handle, avatar, time, content, comments, reposts, likes, views, isSimulated, image, onDelete }: TweetCardProps) {
+export function TweetCard({ name, handle, avatar, time, content, comments, reposts, likes, views, isSimulated, image, onDelete, hideMenu }: TweetCardProps) {
     return (
         <div className={cn(
             "flex gap-3 px-4 py-3 border-b border-border cursor-pointer hover:bg-twitter-hover transition-colors",
@@ -50,7 +51,7 @@ export function TweetCard({ name, handle, avatar, time, content, comments, repos
                         >
                             <Trash2 size={16} />
                         </button>
-                    ) : (
+                    ) : !hideMenu && (
                         <button className="text-muted-foreground hover:bg-twitter-blue/10 hover:text-twitter-blue rounded-full p-1.5 -mr-2 transition-colors">
                             <MoreHorizontal size={17} />
                         </button>

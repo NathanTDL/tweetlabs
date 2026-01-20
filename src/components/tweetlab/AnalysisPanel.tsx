@@ -47,7 +47,7 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
     const score = getEngagementScore();
 
     // Mock variants for demonstration (in real app, these would come from AI)
-    const variants = analysis?.refined_alternatives || [];
+    const variants = analysis?.suggestions || [];
     const totalPages = Math.ceil(variants.length / variantsPerPage);
     const currentVariants = variants.slice(
         variantPage * variantsPerPage,
@@ -158,19 +158,19 @@ export function AnalysisPanel({ analysis, isLoading }: AnalysisPanelProps) {
                                 <div className="flex-1 min-w-0">
                                     <p className="text-[13px] font-semibold mb-1">Original</p>
                                     <p className="text-[12px] text-muted-foreground truncate">
-                                        {analysis?.refined_alternatives?.[0]?.substring(0, 40) || 'Your original tweet'}...
+                                        {analysis?.tweet.substring(0, 40) || 'Your original tweet'}...
                                     </p>
                                 </div>
                                 <span className="text-2xl font-bold">{score}</span>
                             </div>
 
                             {/* Variant Tweets */}
-                            {currentVariants.map((variant, i) => (
+                            {currentVariants.map((suggestion, i) => (
                                 <div key={i} className="flex items-start justify-between gap-3 p-3 hover:bg-secondary/30 rounded-xl transition-colors cursor-pointer">
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[13px] font-semibold mb-1">Variant {variantPage * variantsPerPage + i + 1}</p>
+                                        <p className="text-[13px] font-semibold mb-1">{suggestion.version}</p>
                                         <p className="text-[12px] text-muted-foreground truncate">
-                                            {variant.substring(0, 40)}...
+                                            {suggestion.tweet.substring(0, 40)}...
                                         </p>
                                     </div>
                                     <span className="text-2xl font-bold">{Math.min(99, score + Math.floor(Math.random() * 20) - 5)}</span>
